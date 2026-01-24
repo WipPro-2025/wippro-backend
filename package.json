@@ -1,12 +1,12 @@
 {
-  "name": "wippro",
-  "version": "1.0.0",
-  "private": true,
-  "scripts": {
-    "start": "node app.js"
-  },
-  "dependencies": {
-    "express": "^4.18.2",
-    "openai": "^4.0.0"
-  }
+ "name": "wippro-backend",
+ "version": "1.0.0", 
+ "main": "app.js",
+ "scripts":{
+  "start": "node app.js"
+ },
+ "dependencies":{
+  "express": "^4.18.2",
+  "cors":"^2.8.5"
+ }
 }
