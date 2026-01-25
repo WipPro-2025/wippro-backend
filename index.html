@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WIPpro – Aftersales Communication Tool</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <div class="wrap">
+    <header class="head">
+      <div>
+        <h1>WIPpro</h1>
+        <p class="sub">Aftersales Communication Tool (Internal)</p>
+      </div>
+      <span class="badge">Internal</span>
+    </header>
+
+    <div class="card">
+      <p><strong>Instructions</strong></p>
+      <ul>
+        <li>Paste workshop recommendations only</li>
+        <li><strong>Do NOT include</strong> customer name, VRN, VIN, phone or email</li>
+      </ul>
+    </div>
+
+    <form id="generateForm" class="card">
+      <label for="notes">Workshop notes</label>
+      <textarea id="notes" placeholder="Example: spring links worn&#10;rear tyres close to limit"></textarea>
+
+      <div class="grid">
+        <div>
+          <label for="tone">Tone</label>
+          <select id="tone">
+            <option value="calm">Calm & professional</option>
+            <option value="brief">Brief</option>
+            <option value="detailed">More detailed</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="format">Format</label>
+          <select id="format">
+            <option value="email">Email</option>
+            <option value="sms">SMS (short)</option>
+            <option value="verbal">Verbal talk-track</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="customerType">Customer type</label>
+          <select id="customerType">
+            <option value="neutral">Neutral</option>
+            <option value="price_sensitive">Price-sensitive</option>
+            <option value="busy">Busy</option>
+            <option value="anxious">Anxious</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="outputType">Output type</label>
+          <select id="outputType">
+            <option value="plain_vhc">Plain-English explanation</option>
+            <option value="customer_email">Customer message</option>
+            <option value="objection_handling">Objection handling</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="buttons">
+        <button id="btnGenerate" type="submit">Generate</button>
+        <button id="btnClear" type="button" class="ghost">Clear</button>
+        <button id="btnCopy" type="button" class="ghost">Copy</button>
+      </div>
+
+      <div class="buttons" style="margin-top:10px;">
+        <button id="btnCorrect" type="button" class="ghost">✅ Correct</button>
+        <button id="btnIncorrect" type="button" class="ghost">❌ Not quite right</button>
+      </div>
+
+      <div id="status" class="hint block" style="display:none;"></div>
+    </form>
+
+    <div class="card">
+      <label>Output</label>
+      <pre id="output" class="hint block">Result will appear here…</pre>
+    </div>
+
+    <footer class="foot">
+      <small>
+        WIPpro • Internal tool • No customer data stored • v2
+      </small>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
