@@ -1,142 +1,133 @@
-const API_BASE = "https://accomplished-optimism-production-0e13.up.railway.app";
-const SITE_KEY = "WIPPRO_INTERNAL_2026";
+const express = require("express");
+const cors = require("cors");
+const OpenAI = require("openai");
 
-function $(sel) { return document.querySelector(sel); }
+const app = express();
+const PORT = process.env.PORT || 8080;
 
-function setStatus(msg, isError = false) {
-  const el = $("#status");
-  if (!el) return;
-  el.style.display = msg ? "block" : "none";
-  el.textContent = msg || "";
-  el.style.borderColor = isError ? "#f0c36d" : "#d9dde7";
-  el.style.background = isError ? "#fff7e6" : "#f6f7f9";
-}
+// ✅ Allow your Netlify site to call the backend
+// Add your Netlify URL here (and keep localhost for testing)
+const ALLOWED_ORIGINS = [
+  "https://wippro-c8f660.netlify.app",
+  "http://localhost:5500",
+  "http://127.0.0.1:5500",
+];
 
-function setOutput(text) {
-  const out = $("#output");
-  if (out) out.textContent = text;
-}
-
-async function postJSON(path, payload) {
-  const res = await fetch(`${API_BASE}${path}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-wippro-site-key": SITE_KEY
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // allow server-to-server or curl requests with no origin
+      if (!origin) return callback(null, true);
+      if (ALLOWED_ORIGINS.includes(origin)) return callback(null, true);
+      return callback(new Error("CORS blocked: " + origin));
     },
-    body: JSON.stringify(payload)
-  });
+    methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "x-wippro-site-key"],
+  })
+);
 
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`);
-  return data;
+app.use(express.json({ limit: "1mb" }));
+
+// ---- Basic routes
+app.get("/", (req, res) => res.status(200).send("WIPpro backend live ✅"));
+app.get("/health", (req, res) => res.status(200).json({ status: "ok" }));
+
+// ---- Helper: split notes into “items”
+function splitIntoItems(notes) {
+  return String(notes)
+    .split(/\n|•|- /) // new lines, bullets, hyphens
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
 }
 
-let lastGenerated = {
-  notes: "",
-  output: ""
-};
+// ---- Helper: build a strict prompt with consistent output format
+function buildPrompt(items, format, tone, customerType) {
+  return `
+You are a motor-trade service advisor assistant.
 
-document.addEventListener("DOMContentLoaded", () => {
-  const form = $("#generateForm");
-  const notesEl = $("#notes");
-  const toneEl = $("#tone");
-  const formatEl = $("#format");
-  const customerTypeEl = $("#customerType");
-  const outputTypeEl = $("#outputType");
+Goal: Turn workshop notes into customer-friendly explanations with a consistent structure.
 
-  const btnGenerate = $("#btnGenerate");
-  const btnClear = $("#btnClear");
-  const btnCopy = $("#btnCopy");
-  const btnCorrect = $("#btnCorrect");
-  const btnIncorrect = $("#btnIncorrect");
+Rules:
+- Write for a non-technical customer (no jargon).
+- Motor trade professional tone (not Mercedes specific).
+- No scare tactics, no pressure selling.
+- Keep it clear and practical.
+- If there are multiple items, explain each item separately.
 
-  btnClear?.addEventListener("click", () => {
-    notesEl.value = "";
-    setOutput("Result will appear here…");
-    setStatus("");
-    lastGenerated = { notes: "", output: "" };
-  });
+Output MUST follow this exact structure for EACH item:
 
-  btnCopy?.addEventListener("click", async () => {
-    const text = $("#output")?.textContent || "";
-    if (!text || text.includes("Result will appear here")) return alert("Nothing to copy yet.");
-    await navigator.clipboard.writeText(text);
-    alert("Copied ✅");
-  });
+ITEM: <name in plain English>
+What it does: <1 sentence>
+Why it needs attention: <1 sentence>
+Benefit to the customer: <1 sentence>
 
-  btnCorrect?.addEventListener("click", async () => {
-    if (!lastGenerated.output) return alert("Generate something first.");
-    try {
-      await postJSON("/feedback", {
-        originalNotes: lastGenerated.notes,
-        outputShown: lastGenerated.output,
-        wasCorrect: true,
-        issueType: "none"
-      });
-      alert("Saved ✅");
-    } catch (e) {
-      alert(e.message);
+No extra headings. No intro paragraph. No numbering. No markdown.
+
+Context settings:
+- Preferred format: ${format}
+- Tone: ${tone}
+- Customer type: ${customerType}
+
+Workshop items:
+${items.map((x) => `- ${x}`).join("\n")}
+`;
+}
+
+// ---- MAIN route used by Netlify
+app.post("/generate", async (req, res) => {
+  try {
+    // ✅ Auth: site key must match
+    const siteKey = req.get("x-wippro-site-key");
+    const expectedSiteKey = process.env.SITE_KEY;
+
+    if (!expectedSiteKey) {
+      return res.status(500).json({ error: "SERVER_MISSING_SITE_KEY (set SITE_KEY in Railway Variables)" });
     }
-  });
 
-  btnIncorrect?.addEventListener("click", async () => {
-    if (!lastGenerated.output) return alert("Generate something first.");
-
-    const issueType = prompt(
-      "What’s wrong? Type one:\nwrong_part / inaccurate / too_technical / other",
-      "wrong_part"
-    ) || "other";
-
-    const correctPartName = prompt("If you know the correct part name, type it (or leave blank):", "") || "";
-    const correctedText = prompt("Optional: what should it say instead? (or leave blank):", "") || "";
-
-    try {
-      await postJSON("/feedback", {
-        originalNotes: lastGenerated.notes,
-        outputShown: lastGenerated.output,
-        wasCorrect: false,
-        issueType,
-        correctPartName,
-        correctedText
-      });
-      alert("Noted ✅ (logged for review)");
-    } catch (e) {
-      alert(e.message);
+    if (!siteKey || siteKey !== expectedSiteKey) {
+      return res.status(401).json({ error: "Unauthorized (missing or wrong site key)" });
     }
-  });
 
-  form?.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const notes = (notesEl.value || "").trim();
-    if (!notes) return alert("Paste workshop notes first.");
-
-    const payload = {
-      notes,
-      tone: toneEl?.value || "calm",
-      format: formatEl?.value || "email",
-      customerType: customerTypeEl?.value || "neutral",
-      outputType: outputTypeEl?.value || "plain_vhc"
-    };
-
-    try {
-      setStatus("Generating…");
-      btnGenerate && (btnGenerate.disabled = true);
-
-      const result = await postJSON("/generate", payload);
-
-      const text = result.result || "No result returned.";
-      setOutput(text);
-      setStatus("Done ✅");
-
-      lastGenerated = { notes, output: text };
-    } catch (err) {
-      console.error(err);
-      setStatus(err.message || "Something went wrong", true);
-      alert(err.message || "Something went wrong");
-    } finally {
-      btnGenerate && (btnGenerate.disabled = false);
+    // ✅ Must have OpenAI key on server
+    if (!process.env.OPENAI_API_KEY) {
+      return res.status(500).json({ error: "SERVER_MISSING_OPENAI_API_KEY (set OPENAI_API_KEY in Railway Variables)" });
     }
-  });
+
+    const { notes, format = "email", tone = "calm", customerType = "neutral" } = req.body || {};
+
+    if (!notes || String(notes).trim() === "") {
+      return res.status(400).json({ error: "No notes provided" });
+    }
+
+    const items = splitIntoItems(notes);
+
+    // ✅ Build strict prompt
+    const prompt = buildPrompt(items, format, tone, customerType);
+
+    // ✅ OpenAI client (server-side only)
+    const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+    // ✅ Use a broadly available model
+    const response = await client.responses.create({
+      model: "gpt-4.1-mini",
+      input: prompt,
+    });
+
+    // ✅ Safely extract text
+    const text = response.output_text?.trim();
+
+    if (!text) {
+      console.error("OpenAI returned empty output:", JSON.stringify(response, null, 2));
+      return res.status(500).json({ error: "AI returned no text" });
+    }
+
+    return res.status(200).json({ ok: true, result: text });
+  } catch (err) {
+    console.error("AI_GENERATION_FAILED:", err);
+    return res.status(500).json({ error: "AI_GENERATION_FAILED" });
+  }
+});
+
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Backend running on port ${PORT}`);
 });
