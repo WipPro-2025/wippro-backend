@@ -1,51 +1,24 @@
-import express from "express";
-import cors from "cors";
+const express = require("express");
+const cors = require("cors");
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 
-/* ===============================
-   MIDDLEWARE
-================================ */
+// Middleware
+app.use(cors());
 app.use(express.json());
 
-app.use(cors({
-  origin: "https://wip-pro.netlify.app",
-  methods: ["GET", "POST", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "x-wippro-site-key"],
-}));
-
-app.options("*", cors());
-
-/* ===============================
-   ROUTES
-================================ */
+// ✅ NEW: Root route so Railway domain shows something (stops the Not Found page)
 app.get("/", (req, res) => {
-  res.send("WIPpro backend running ✅");
+  res.status(200).send("Wippro backend live 🚀");
 });
 
-app.post("/generate", (req, res) => {
-  const siteKey = req.get("x-wippro-site-key");
-
-  if (!siteKey || siteKey !== process.env.SITE_KEY) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
-
-  const { notes } = req.body;
-
-  if (!notes) {
-    return res.status(400).json({ error: "No notes provided" });
-  }
-
-  // TEMP RESPONSE — proves frontend ↔ backend works
-  return res.json({
-    result: `Backend connected successfully. Notes received: "${notes}"`
-  });
+// (Optional) simple health check endpoint
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok" });
 });
 
-/* ===============================
-   START SERVER
-================================ */
-app.listen(PORT, () => {
+// Start server
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`Backend running on port ${PORT}`);
 });
