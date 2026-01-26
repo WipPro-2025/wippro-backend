@@ -18,12 +18,14 @@ app.post("/generate", async (req, res) => {
     const { notes, format, tone, customerType } = req.body;
 
     if (!notes) {
-      return res.status(400).json({ error: "No workshop notes provided" });
+      return res.status(400).json({
+        error: "No workshop notes provided"
+      });
     }
 
     // TEMP response (proves backend works)
     res.json({
-      output: `Customer explanation (${format}, ${tone}):\n\n${notes}`
+      result: `Customer explanation (${format}, ${tone}):\n\n${notes}`
     });
 
   } catch (err) {
@@ -32,8 +34,9 @@ app.post("/generate", async (req, res) => {
   }
 });
 
-// 🚨 THIS LINE IS CRITICAL FOR RAILWAY
+// 🚨 REQUIRED for Railway
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
