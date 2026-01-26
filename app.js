@@ -1,16 +1,12 @@
 /**
- * app.js — Railway backend (Node/Express)
+ * app.js — Railway backend (Node/Express) for WipPro
+ * Supports formats: Email, SMS/Text (corporate), Verbal talk-track
  *
- * Endpoints:
- * - POST /generate   -> takes workshop notes / part names and returns simple explanations
- * - GET  /           -> health check
- * - GET  /debug      -> shows whether env vars are present (safe: does NOT print secrets)
- *
- * Railway Environment Variables (set in Railway → Variables):
- * - OPENAI_API_KEY      = your OpenAI key
- * - SITE_KEY            = your shared secret (must match frontend header x-wippro-site-key)
- * - ALLOWED_ORIGIN      = your Netlify URL e.g. https://wip-pro.netlify.app
- * - PORT                = Railway sets automatically (don’t manually set unless needed)
+ * Railway ENV VARS (set these in Railway > Variables):
+ * - OPENAI_API_KEY   = your OpenAI key
+ * - SITE_KEY         = shared secret your frontend sends in header "x-wippro-site-key"
+ * - ALLOWED_ORIGIN   = your Netlify URL, e.g. https://wip-pro.netlify.app
+ * - PORT             = (Railway sets this automatically)
  */
 
 const express = require("express");
@@ -27,7 +23,7 @@ const SITE_KEY = process.env.SITE_KEY || "";
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY || "";
 const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || "https://wip-pro.netlify.app";
 
-// Create OpenAI client only if key exists
+// Only create OpenAI client if key exists
 const openai = OPENAI_API_KEY ? new OpenAI({ apiKey: OPENAI_API_KEY }) : null;
 
 // =========================
@@ -52,7 +48,7 @@ app.get("/", (req, res) => {
   res.status(200).send("WipPro backend live ✅");
 });
 
-// Optional debug endpoint (remove later if you want)
+// Optional — remove later if you don’t want it public
 app.get("/debug", (req, res) => {
   res.json({
     has_OPENAI_API_KEY: !!OPENAI_API_KEY,
@@ -63,7 +59,7 @@ app.get("/debug", (req, res) => {
 });
 
 // =========================
-// Security: header auth
+// Auth check (site key)
 // =========================
 function authOrReject(req, res) {
   const incoming = req.get("x-wippro-site-key");
@@ -86,45 +82,45 @@ function splitNotes(notes) {
 }
 
 // =========================
-// Tiny library (fast + consistent)
-// Add to this over time
+// Tiny "Library" (fast answers)
+// Add to it over time
 // =========================
 const LIBRARY = [
   {
     keys: ["spring link", "drop link", "anti roll bar link", "arb link"],
     name: "Anti-roll bar link (drop link)",
-    does: "It links the anti-roll bar to the suspension to help keep the car stable in corners.",
-    ifLeft:
-      "If it wears out you may hear knocking over bumps and the car can feel less steady when turning.",
+    does: "Connects the anti-roll bar to the suspension so the car stays stable and level in corners.",
+    whyReplace:
+      "When worn it can knock/clunk, reduce stability, and allow excess movement over bumps and when turning.",
     benefit:
-      "Replacing it stops the knocking, improves stability, and reduces extra strain on other suspension parts.",
+      "Quieter ride, better handling, improved stability, and reduced strain on other suspension parts.",
   },
   {
     keys: ["coil spring", "road spring", "spring snapped", "broken spring"],
     name: "Road spring (coil spring)",
-    does: "It supports the car’s weight and helps keep the tyres firmly on the road.",
-    ifLeft:
-      "A broken spring can affect ride height and handling, may damage the tyre, and can be an MOT safety issue.",
+    does: "Supports the vehicle’s weight and helps keep the tyre in firm contact with the road.",
+    whyReplace:
+      "A snapped spring can affect steering/handling, cause uneven ride height, damage the tyre, and is a safety/MOT issue.",
     benefit:
-      "Replacing it restores safe ride height and handling, and helps prevent further damage.",
+      "Restores safe ride height, handling and braking stability, reduces tyre wear and prevents further damage.",
   },
   {
     keys: ["nox sensor", "engine light", "emi", "adblue", "scr"],
     name: "NOx sensor (emissions sensor)",
-    does: "It measures exhaust emissions so the engine and emissions system can work properly.",
-    ifLeft:
-      "If it fails it can bring on warning lights, reduce performance, increase fuel use, and cause emissions issues.",
+    does: "Measures exhaust emissions so the engine and emissions system can work correctly.",
+    whyReplace:
+      "If faulty it can trigger the engine light, reduce performance, increase fuel use, and cause emissions/MOT issues.",
     benefit:
-      "Replacing it helps clear warnings, improves emissions control, and prevents knock-on faults.",
+      "Fixes warning lights, helps the car run properly, improves emissions control, and prevents knock-on faults.",
   },
   {
     keys: ["battery", "battery replacement", "12v battery", "aux battery"],
     name: "12V battery",
-    does: "It powers starting and the car’s electrical systems (locks, lights, infotainment, control modules).",
-    ifLeft:
-      "A weak battery can cause non-starts, stop/start problems, warning lights, and random electrical glitches.",
+    does: "Powers starting and all electrics (locks, lights, infotainment, control modules).",
+    whyReplace:
+      "A weak battery can cause non-starts, warning lights, stop/start issues, and random electrical faults.",
     benefit:
-      "A new battery gives reliable starting and helps prevent electrical faults and breakdowns.",
+      "Reliable starting, fewer electrical glitches, protects sensitive modules, and avoids breakdowns.",
   },
 ];
 
@@ -137,56 +133,77 @@ function findLibraryMatch(line) {
 }
 
 // =========================
-// Prompt Builder (user content)
+// PROMPT BUILDER (Email / SMS / Verbal)
 // =========================
 function buildPrompt({ line, tone, format, customerType, outputType }) {
-  return `
-Explain the following in simple customer-friendly terms.
+  const fmt = String(format || "Email").toLowerCase();
 
-INPUT:
+  // Treat "sms", "text", "whatsapp" as the same format family
+  const isText = fmt.includes("sms") || fmt.includes("text") || fmt.includes("whatsapp");
+  const isVerbal = fmt.includes("verbal");
+
+  let formatRules = "";
+
+  if (isText) {
+    formatRules = `
+FORMAT RULES (SMS / TEXT - CORPORATE):
+- Write a short corporate SMS/WhatsApp-style message
+- Max 450 characters
+- No greeting (no "Hi John") and no sign-off (no "Best regards")
+- No placeholders (no "[Your Name]" / "[Your Position]")
+- No numbering (no 1) 2) 3))
+- 2–4 short, factual sentences
+- Informational only: do NOT mention cost, time, or ask for approval/authorisation
+`.trim();
+  } else if (isVerbal) {
+    formatRules = `
+FORMAT RULES (VERBAL TALK-TRACK):
+- Write a short script the advisor can say out loud
+- Use 4 short chunks with headings:
+  What we found:
+  What it means:
+  Risk if left:
+  Recommended action:
+- Calm, factual, customer-friendly (no jargon)
+- Do NOT mention cost, time, or ask for approval/authorisation
+`.trim();
+  } else {
+    formatRules = `
+FORMAT RULES (EMAIL):
+- Write a concise, professional customer email
+- No fake signature placeholders
+- Use this structure:
+  1) What it is (1 sentence)
+  2) What it does (1–2 sentences)
+  3) What happens if left (1–2 sentences)
+  4) Recommended action (1–2 sentences)
+- Do NOT mention cost, time, or ask for approval/authorisation
+`.trim();
+  }
+
+  return `
+You are a UK motor trade service advisor.
+Convert the workshop note into a customer-friendly explanation.
+
+WORKSHOP NOTE:
 "${line}"
 
-OUTPUT REQUIREMENTS:
+OUTPUT SETTINGS:
 - Tone: ${tone}
-- Format: ${format}
 - Customer type: ${customerType}
 - Output type: ${outputType}
+- Format: ${format}
 
-Write:
-1) What it is (1 simple sentence)
-2) What it does (1–2 sentences)
-3) What happens if it fails or wears out (1–2 sentences)
-4) Benefit of fixing or replacing it (1–2 sentences)
+${formatRules}
 
-Do NOT include any customer personal data.
-Do NOT suggest uncertainty, inspection, confirmation checks, or "visual checks".
-Keep it concise, clear, and practical.
+UNIVERSAL RULES:
+- Never blame or accuse anyone
+- Do NOT include customer personal data (name/VRN/VIN/phone/email)
+- Keep it concise, clear, and practical
+- If the note is vague/uncertain, you MAY add:
+  "If you'd like, we can confirm this with a quick visual check."
 `.trim();
 }
-
-// =========================
-// System prompt (NEW RULE CHANGE APPLIED)
-// =========================
-const SYSTEM_PROMPT = `
-You are a UK motor trade service advisor.
-
-Your job is to explain vehicle parts and workshop notes in clear, calm, customer-friendly language.
-Assume the customer has no technical knowledge.
-
-Rules:
-- Always explain parts in simple, everyday terms
-- Use professional but plain language (no heavy jargon)
-- Never blame or accuse anyone
-- Do not suggest uncertainty, inspection, or confirmation checks
-- Do not include customer personal data
-- Keep explanations concise, clear, and practical
-
-Structure every response as:
-1) What it is (1 simple sentence)
-2) What it does (1–2 sentences)
-3) What happens if it fails or wears out (1–2 sentences)
-4) Benefit of fixing or replacing it (1–2 sentences)
-`.trim();
 
 // =========================
 // Main generate route
@@ -207,31 +224,44 @@ app.post("/generate", async (req, res) => {
 
     const items = splitNotes(notes);
 
-    // Intro line if multiple items
     const sections = [];
-    if (items.length > 1) {
-      sections.push(
-        `✅ You’ve got ${items.length} items listed. I’ll explain each one separately so it’s easy to read.\n`
-      );
-    }
 
     for (let i = 0; i < items.length; i++) {
       const line = items[i];
 
-      // 1) Library first
+      // 1) Library first (fast + consistent)
       const match = findLibraryMatch(line);
       if (match) {
-        sections.push(
-          `# Item ${i + 1}: ${line}\n` +
-            `**What it is:** ${match.name}\n` +
-            `**What it does:** ${match.does}\n` +
-            `**What happens if it fails or wears out:** ${match.ifLeft}\n` +
-            `**Benefit of fixing or replacing it:** ${match.benefit}\n`
-        );
+        // Output also respects the chosen format (keep it simple and neutral)
+        const fmt = String(format || "Email").toLowerCase();
+        const isText = fmt.includes("sms") || fmt.includes("text") || fmt.includes("whatsapp");
+        const isVerbal = fmt.includes("verbal");
+
+        if (isText) {
+          sections.push(
+            `${match.name}: ${match.does} If left, it may worsen and lead to further issues. Recommended: inspection/rectification as advised by the workshop.`
+          );
+        } else if (isVerbal) {
+          sections.push(
+            `What we found: ${match.name}.\n` +
+              `What it means: ${match.does}\n` +
+              `Risk if left: ${match.whyReplace}\n` +
+              `Recommended action: ${match.benefit}`
+          );
+        } else {
+          sections.push(
+            `# Item ${i + 1}: ${line}\n` +
+              `**What it is:** ${match.name}\n` +
+              `**What it does:** ${match.does}\n` +
+              `**What happens if left:** ${match.whyReplace}\n` +
+              `**Recommended action:** ${match.benefit}\n`
+          );
+        }
+
         continue;
       }
 
-      // 2) AI for everything else (part names / notes)
+      // 2) AI for unknown items
       const prompt = buildPrompt({
         line,
         tone: tone || "Calm & professional",
@@ -244,18 +274,36 @@ app.post("/generate", async (req, res) => {
         model: "gpt-4o-mini",
         temperature: 0.4,
         messages: [
-          { role: "system", content: SYSTEM_PROMPT },
+          {
+            role: "system",
+            content:
+              "You are a UK motor trade service advisor. Follow the user's FORMAT RULES exactly. Keep responses informational and neutral. Do not include personal data. Do not add signatures or placeholders unless explicitly asked.",
+          },
           { role: "user", content: prompt },
         ],
       });
 
       const text = completion.choices?.[0]?.message?.content?.trim() || "";
-      sections.push(`# Item ${i + 1}: ${line}\n${text}\n`);
+
+      // For Email, keep item headers; for SMS/Verbal, just concatenate nicely
+      const fmt = String(format || "Email").toLowerCase();
+      const isText = fmt.includes("sms") || fmt.includes("text") || fmt.includes("whatsapp");
+      const isVerbal = fmt.includes("verbal");
+
+      if (isText) {
+        sections.push(text.replace(/\n+/g, " ").trim());
+      } else if (isVerbal) {
+        sections.push(text.trim());
+      } else {
+        sections.push(`# Item ${i + 1}: ${line}\n${text}\n`);
+      }
     }
+
+    const finalText = sections.join(items.length > 1 ? "\n\n" : "\n");
 
     return res.json({
       ok: true,
-      output: sections.join("\n"),
+      output: finalText,
     });
   } catch (err) {
     console.error("GENERATION_ERROR:", err?.message || err);
