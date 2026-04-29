@@ -1,145 +1,131 @@
 import express from "express";
 import cors from "cors";
-import OpenAI from "openai";
 
 const app = express();
 
-// ===== CONFIG =====
-const AI_ENABLED = true; // Set false to disable AI instantly
-const PORT = process.env.PORT || 8080;
-
-// ===== MIDDLEWARE =====
-app.use(cors());
+app.use(cors({ origin: "*" }));
 app.use(express.json());
 
-// ===== HEALTH CHECK =====
 app.get("/", (req, res) => {
-  res.send("WipPro backend running ✅");
+  res.send("WIPpro backend running ✅");
 });
 
-app.get("/health", (req, res) => {
-  res.json({ ok: true });
-});
-
-// ===== OPENAI CLIENT =====
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
-
-// ===== MAIN GENERATE ROUTE =====
-app.post("/generate", async (req, res) => {
+async function handleGenerate(req, res) {
   try {
-    const { notes, format, tone, customerType } = req.body || {};
+    const { notes, context } = req.body;
 
     if (!notes || !notes.trim()) {
-      return res.status(400).json({
-        error: "No workshop notes provided"
-      });
+      return res.status(400).json({ error: "No notes provided" });
     }
 
-    // ===== FALLBACK MODE (NO AI) =====
-    if (!AI_ENABLED) {
+    const cleanNotes = notes.toLowerCase();
+    const cleanContext = (context || "").toLowerCase();
+
+    const isTyreSkip =
+      cleanNotes.includes("tyre skip") ||
+      cleanNotes.includes("tire skip") ||
+      cleanNotes.includes("tyre scrub") ||
+      cleanNotes.includes("tire scrub") ||
+      cleanNotes.includes("tyre judder") ||
+      cleanNotes.includes("tire judder") ||
+      cleanNotes.includes("tyre hop") ||
+      cleanNotes.includes("tire hop") ||
+      cleanNotes.includes("full lock") ||
+      cleanNotes.includes("skipping") ||
+      cleanNotes.includes("skip when turning");
+
+    const isCharacteristic =
+      cleanContext.includes("characteristic") ||
+      cleanContext.includes("no fault");
+
+    if (isTyreSkip && isCharacteristic) {
       return res.json({
-        result: `Customer explanation:\n\n${notes}`
+        result:
+          "This can feel unusual, but it is a known characteristic of the vehicle rather than a fault. At low speeds, especially when manoeuvring on full lock, the front wheels naturally turn at slightly different angles. In colder weather the tyre rubber is firmer, so the tyres can momentarily skip or scrub across the surface instead of rolling smoothly. It can be noticeable and a bit off-putting, but the vehicle is safe to drive and no repair or adjustment is required."
       });
     }
 
-    if (!process.env.OPENAI_API_KEY) {
-      return res.status(500).json({
-        error: "Missing OPENAI_API_KEY on server"
-      });
-    }
-
-    // ===== SIMPLE EXPLAIN PROMPT =====
     const systemPrompt = `
-You explain car faults to someone who knows NOTHING about cars.
+You are an automotive service advisor communication assistant.
 
-Speak like this:
-- Very simple
-- Very direct
-- No introductions
-- No greetings
-- No "I" or "we"
-- No corporate or formal language
+Write the response as ONE smooth, natural paragraph.
 
-START IMMEDIATELY WITH THE EXPLANATION.
+Do not use bullet points.
+Do not use numbered lists.
+Do not use headings.
+Do not write like a report.
+Do not sound robotic.
 
-FOR EACH FAULT, USE THIS STRUCTURE EXACTLY:
+The explanation should sound like a service advisor speaking directly to a customer in plain English.
 
-• What the part is and what it does (in the simplest possible words)
-• What is wrong with it
-• Why it needs replacing (what could happen if it isn’t fixed)
-• What replacing it fixes
+Use simple everyday language, as if explaining to a non-technical person.
 
-RULES:
-- Assume the person knows zero mechanical information.
-- Use short sentences.
-- One idea per sentence.
-- If a technical word is used, explain it immediately.
-- No promises about cost or time.
-- No filler or waffle.
-- No reassurance phrases.
-- No names, VRN, VIN, phone numbers, or emails.
+Use this flow:
+First explain what has been found.
+Then explain what it means in simple terms.
+Then explain why it matters.
+Then explain the benefit of resolving it, without directly asking for the sale.
 
-FORMAT RULES:
-- verbal → bullet points
-- email → short paragraphs, no greeting
-- sms → 1–2 very short lines only
+Never guess or speculate.
+Only say a repair is required if the technician notes clearly confirm it.
+Do not invent causes.
+Do not exaggerate risk.
+Do not create unnecessary urgency.
 
-EXAMPLE STYLE:
+The advisor selects the context. Follow it exactly.
 
-"The spring is part of the suspension. It holds the car up.
-The spring has snapped, so it cannot support the car properly.
-If it is not replaced, the car can handle badly and wear tyres unevenly.
-Replacing it restores safe handling and ride height."
+If the context is RED:
+Explain clearly that work has been identified and needs doing. Explain the consequence of leaving it and the benefit of fixing it.
 
-DO NOT ADD EXTRA WORDING.
+If the context is AMBER:
+Explain that the item has been advised, is not urgent now, but may worsen over time. Keep the tone calm and non-pushy.
+
+If the context is CHARACTERISTIC:
+Explain that it is normal vehicle behaviour, not a fault. Confirm the vehicle is safe to drive. Confirm no repair, adjustment, monitoring, or investigation is required.
+
+Return only the final customer-facing explanation as one natural paragraph.
 `;
 
-    // ===== USER PROMPT =====
-    const userPrompt = `
-FORMAT: ${format || "verbal"}
-
-Explain this as if talking to someone who knows nothing about cars.
-Be blunt, simple, and clear.
-Start immediately with the explanation.
-
-Split the notes into separate faults.
-Explain each fault using:
-- what it is
-- what’s wrong
-- why replace
-- what fixing it does
-
-WORKSHOP NOTES:
-${notes}
-`;
-
-    // ===== OPENAI REQUEST =====
-    const completion = await openai.chat.completions.create({
-      model: process.env.OPENAI_MODEL || "gpt-4o-mini",
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userPrompt }
-      ],
-      temperature: 0.3
+    const openAiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        temperature: 0.2,
+        messages: [
+          { role: "system", content: systemPrompt },
+          {
+            role: "user",
+            content: `Technician notes: ${notes}\nContext: ${context}`
+          }
+        ]
+      })
     });
 
-    const aiText =
-      completion.choices?.[0]?.message?.content?.trim() ||
-      "No response generated.";
+    const data = await openAiResponse.json();
 
-    res.json({ result: aiText });
+    if (!openAiResponse.ok) {
+      console.error("OpenAI error:", data);
+      return res.status(500).json({ error: "OpenAI request failed" });
+    }
 
-  } catch (err) {
-    console.error("AI error:", err);
-    res.status(500).json({
-      error: "AI generation failed"
+    return res.json({
+      result: data.choices?.[0]?.message?.content || "No explanation generated."
     });
+  } catch (error) {
+    console.error("WIPpro backend error:", error);
+    return res.status(500).json({ error: "Something went wrong" });
   }
-});
+}
 
-// ===== START SERVER =====
+app.post("/generate", handleGenerate);
+app.post("/api/generate", handleGenerate);
+
+const PORT = process.env.PORT || 8080;
+
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`WIPpro backend running on port ${PORT}`);
 });
