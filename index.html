@@ -2,98 +2,1065 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>WIPpro – Aftersales Communication Tool</title>
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <meta
+    name="description"
+    content="WIPpro helps automotive service advisors explain technician recommendations clearly and professionally."
+  />
+
+  <title>WIPpro | Clear Aftersales Communication</title>
+
   <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
-  <div class="wrap">
-    <header class="head">
-      <div>
-        <h1>WIPpro</h1>
-        <p class="sub">Aftersales Communication Tool (Internal)</p>
-      </div>
-      <span class="badge">Internal</span>
-    </header>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="#" aria-label="WIPpro home">
+        <span class="brand-name">WIPpro</span>
+        <span class="brand-mark" aria-hidden="true"></span>
+      </a>
 
-    <div class="card">
-      <p><strong>Instructions</strong></p>
-      <ul>
-        <li>Paste workshop recommendations only</li>
-        <li><strong>Do NOT include</strong> customer name, VRN, VIN, phone or email</li>
-      </ul>
+      <button
+        id="outcomesButton"
+        class="header-link"
+        type="button"
+      >
+        Outcomes
+      </button>
     </div>
+  </header>
 
-    <form id="generateForm" class="card">
-      <label for="notes">Workshop notes</label>
-      <textarea id="notes" placeholder="Example: spring links worn&#10;rear tyres close to limit"></textarea>
+  <main class="page-shell">
+    <section id="advisorPage" class="page-section">
+      <div class="intro">
+        <p class="eyebrow">Automotive aftersales communication</p>
 
-      <div class="grid">
-        <div>
-          <label for="tone">Tone</label>
-          <select id="tone">
-            <option value="calm">Calm & professional</option>
-            <option value="brief">Brief</option>
-            <option value="detailed">More detailed</option>
-          </select>
-        </div>
+        <h1>
+          Helping advisors explain work clearly,
+          every time.
+        </h1>
 
-        <div>
-          <label for="format">Format</label>
-          <select id="format">
-            <option value="email">Email</option>
-            <option value="sms">SMS (short)</option>
-            <option value="verbal">Verbal talk-track</option>
-          </select>
-        </div>
-
-        <div>
-          <label for="customerType">Customer type</label>
-          <select id="customerType">
-            <option value="neutral">Neutral</option>
-            <option value="price_sensitive">Price-sensitive</option>
-            <option value="busy">Busy</option>
-            <option value="anxious">Anxious</option>
-          </select>
-        </div>
-
-        <div>
-          <label for="outputType">Output type</label>
-          <select id="outputType">
-            <option value="plain_vhc">Plain-English explanation</option>
-            <option value="customer_email">Customer message</option>
-            <option value="objection_handling">Objection handling</option>
-          </select>
-        </div>
+        <p class="intro-copy">
+          Turn a technician recommendation into clear,
+          professional language ready to discuss with your customer.
+        </p>
       </div>
 
-      <div class="buttons">
-        <button id="btnGenerate" type="submit">Generate</button>
-        <button id="btnClear" type="button" class="ghost">Clear</button>
-        <button id="btnCopy" type="button" class="ghost">Copy</button>
+      <section class="input-panel" aria-labelledby="reportHeading">
+        <div class="section-heading">
+          <div>
+            <p class="section-number">01</p>
+            <h2 id="reportHeading">Technician Recommendation</h2>
+          </div>
+
+          <p class="section-description">
+            Paste the technician’s recommendation exactly as it has
+            been recorded.
+          </p>
+        </div>
+
+        <label class="sr-only" for="technicianNotes">
+          Technician Recommendation
+        </label>
+
+        <textarea
+          id="technicianNotes"
+          maxlength="4000"
+          placeholder="Example: Front brake pads measure approximately 2 mm and require replacement."
+        ></textarea>
+
+        <div class="privacy-note">
+          <span class="privacy-icon" aria-hidden="true">i</span>
+
+          <p>
+            Do not include customer names, registration numbers,
+            VINs, telephone numbers or email addresses.
+          </p>
+        </div>
+
+        <button
+          id="generateButton"
+          class="primary-button"
+          type="button"
+        >
+          <span id="generateButtonText">
+            Generate Customer Explanation
+          </span>
+
+          <span
+            id="loadingSpinner"
+            class="spinner"
+            aria-hidden="true"
+          ></span>
+        </button>
+
+        <p
+          id="generateStatus"
+          class="status-message"
+          role="status"
+          aria-live="polite"
+        ></p>
+      </section>
+
+      <section
+        id="resultsArea"
+        class="results-area is-hidden"
+        aria-live="polite"
+      >
+        <section
+          class="content-panel result-panel"
+          aria-labelledby="explanationHeading"
+        >
+          <div class="section-heading">
+            <div>
+              <p class="section-number">02</p>
+              <h2 id="explanationHeading">
+                Customer Explanation
+              </h2>
+            </div>
+
+            <p class="section-description">
+              Clear, professional language ready to share with your
+              customer.
+            </p>
+          </div>
+
+          <div
+            id="customerExplanation"
+            class="generated-content"
+          ></div>
+
+          <div class="panel-actions">
+            <button
+              id="copyExplanationButton"
+              class="secondary-button"
+              type="button"
+            >
+              Copy Explanation
+            </button>
+
+            <span
+              id="copyExplanationStatus"
+              class="action-status"
+              role="status"
+              aria-live="polite"
+            ></span>
+          </div>
+        </section>
+
+        <section
+          class="content-panel"
+          aria-labelledby="guidanceHeading"
+        >
+          <div class="section-heading">
+            <div>
+              <p class="section-number">03</p>
+              <h2 id="guidanceHeading">Advisor Guidance</h2>
+            </div>
+
+            <p class="section-description">
+              Select the question closest to what your customer is
+              asking.
+            </p>
+          </div>
+
+          <div
+            id="questionButtons"
+            class="question-grid"
+            aria-label="Common customer questions"
+          >
+            <button
+              class="question-button"
+              type="button"
+              data-question="Can this work wait?"
+            >
+              Can it wait?
+            </button>
+
+            <button
+              class="question-button"
+              type="button"
+              data-question="Why is this work needed?"
+            >
+              Why is this needed?
+            </button>
+
+            <button
+              class="question-button"
+              type="button"
+              data-question="What could happen if the work is delayed?"
+            >
+              What if it is delayed?
+            </button>
+
+            <button
+              class="question-button"
+              type="button"
+              data-question="Why has this component failed?"
+            >
+              Why has it failed?
+            </button>
+
+            <button
+              class="question-button"
+              type="button"
+              data-question="Why was this not identified previously?"
+            >
+              Why was it not identified before?
+            </button>
+
+            <button
+              class="question-button"
+              type="button"
+              data-question="Would this have been covered by the MOT?"
+            >
+              What about the MOT?
+            </button>
+          </div>
+
+          <div
+            id="guidanceResultArea"
+            class="guidance-result is-hidden"
+          >
+            <p
+              id="selectedQuestion"
+              class="selected-question"
+            ></p>
+
+            <div
+              id="advisorGuidance"
+              class="generated-content"
+            ></div>
+
+            <div class="panel-actions">
+              <button
+                id="copyGuidanceButton"
+                class="secondary-button"
+                type="button"
+              >
+                Copy Guidance
+              </button>
+
+              <span
+                id="copyGuidanceStatus"
+                class="action-status"
+                role="status"
+                aria-live="polite"
+              ></span>
+            </div>
+          </div>
+
+          <p
+            id="guidanceStatus"
+            class="status-message"
+            role="status"
+            aria-live="polite"
+          ></p>
+        </section>
+
+        <section
+          class="content-panel"
+          aria-labelledby="outcomeHeading"
+        >
+          <div class="section-heading">
+            <div>
+              <p class="section-number">04</p>
+              <h2 id="outcomeHeading">Record Outcome</h2>
+            </div>
+
+            <p class="section-description">
+              Record the result once the recommendation has been
+              discussed.
+            </p>
+          </div>
+
+          <fieldset class="outcome-options">
+            <legend class="sr-only">Select an outcome</legend>
+
+            <label class="outcome-option">
+              <input
+                type="radio"
+                name="outcome"
+                value="sold"
+              />
+
+              <span>
+                <strong>Work Sold</strong>
+                <small>The customer has authorised the work.</small>
+              </span>
+            </label>
+
+            <label class="outcome-option">
+              <input
+                type="radio"
+                name="outcome"
+                value="pending"
+              />
+
+              <span>
+                <strong>Awaiting Decision</strong>
+                <small>The customer has not yet decided.</small>
+              </span>
+            </label>
+
+            <label class="outcome-option">
+              <input
+                type="radio"
+                name="outcome"
+                value="declined"
+              />
+
+              <span>
+                <strong>Work Declined</strong>
+                <small>The customer has chosen not to proceed.</small>
+              </span>
+            </label>
+          </fieldset>
+
+          <div
+            id="declineReasonArea"
+            class="decline-area is-hidden"
+          >
+            <label for="declineReason">
+              Reason for declining
+            </label>
+
+            <select id="declineReason">
+              <option value="">Select a reason</option>
+              <option value="Too expensive">Too expensive</option>
+              <option value="Wants more time">
+                Wants more time
+              </option>
+              <option value="Seeking another quote">
+                Seeking another quote
+              </option>
+              <option value="Vehicle being sold">
+                Vehicle being sold
+              </option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <button
+            id="saveOutcomeButton"
+            class="primary-button compact-button"
+            type="button"
+          >
+            Save Outcome
+          </button>
+
+          <p
+            id="outcomeStatus"
+            class="status-message"
+            role="status"
+            aria-live="polite"
+          ></p>
+        </section>
+
+        <button
+          id="startAgainButton"
+          class="text-button"
+          type="button"
+        >
+          Start a new explanation
+        </button>
+      </section>
+    </section>
+
+    <section
+      id="outcomesPage"
+      class="page-section is-hidden"
+      aria-labelledby="outcomesPageHeading"
+    >
+      <div class="outcomes-header">
+        <div>
+          <p class="eyebrow">Local reporting</p>
+          <h1 id="outcomesPageHeading">Outcomes</h1>
+
+          <p class="intro-copy">
+            A simple view of the outcomes saved on this device.
+          </p>
+        </div>
+
+        <button
+          id="backToAdvisorButton"
+          class="secondary-button"
+          type="button"
+        >
+          Back to Advisor
+        </button>
       </div>
 
-      <div class="buttons" style="margin-top:10px;">
-        <button id="btnCorrect" type="button" class="ghost">✅ Correct</button>
-        <button id="btnIncorrect" type="button" class="ghost">❌ Not quite right</button>
+      <div class="metrics-grid">
+        <article class="metric-card">
+          <p>Work Sold</p>
+          <strong id="soldTotal">0</strong>
+        </article>
+
+        <article class="metric-card">
+          <p>Awaiting Decision</p>
+          <strong id="pendingTotal">0</strong>
+        </article>
+
+        <article class="metric-card">
+          <p>Work Declined</p>
+          <strong id="declinedTotal">0</strong>
+        </article>
       </div>
 
-      <div id="status" class="hint block" style="display:none;"></div>
-    </form>
+      <section class="content-panel outcomes-detail">
+        <div class="section-heading">
+          <div>
+            <p class="section-number">Decline insight</p>
+            <h2>Most common decline reason</h2>
+          </div>
+        </div>
 
-    <div class="card">
-      <label>Output</label>
-      <pre id="output" class="hint block">Result will appear here…</pre>
-    </div>
+        <p
+          id="topDeclineReason"
+          class="top-reason"
+        >
+          No declined outcomes recorded.
+        </p>
 
-    <footer class="foot">
-      <small>
-        WIPpro • Internal tool • No customer data stored • v2
-      </small>
-    </footer>
-  </div>
+        <div class="outcomes-actions">
+          <button
+            id="exportButton"
+            class="secondary-button"
+            type="button"
+          >
+            Export CSV
+          </button>
 
-  <script src="app.js"></script>
+          <button
+            id="clearOutcomesButton"
+            class="text-button danger-text"
+            type="button"
+          >
+            Clear saved outcomes
+          </button>
+        </div>
+
+        <p
+          id="outcomesStatus"
+          class="status-message"
+          role="status"
+          aria-live="polite"
+        ></p>
+      </section>
+
+      <p class="local-data-note">
+        Version 1 outcomes are stored only in this browser. They are
+        not yet shared between different devices or advisors.
+      </p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>
+      WIPpro
+      <span aria-hidden="true">·</span>
+      Explain with confidence. Recommend with integrity.
+    </p>
+  </footer>
+
+  <script>
+    const API_BASE =
+      "https://web-production-76fd0.up.railway.app";
+
+    const technicianNotes =
+      document.getElementById("technicianNotes");
+
+    const generateButton =
+      document.getElementById("generateButton");
+
+    const generateButtonText =
+      document.getElementById("generateButtonText");
+
+    const loadingSpinner =
+      document.getElementById("loadingSpinner");
+
+    const generateStatus =
+      document.getElementById("generateStatus");
+
+    const resultsArea =
+      document.getElementById("resultsArea");
+
+    const customerExplanation =
+      document.getElementById("customerExplanation");
+
+    const copyExplanationButton =
+      document.getElementById("copyExplanationButton");
+
+    const copyExplanationStatus =
+      document.getElementById("copyExplanationStatus");
+
+    const questionButtons =
+      document.querySelectorAll(".question-button");
+
+    const guidanceResultArea =
+      document.getElementById("guidanceResultArea");
+
+    const selectedQuestion =
+      document.getElementById("selectedQuestion");
+
+    const advisorGuidance =
+      document.getElementById("advisorGuidance");
+
+    const guidanceStatus =
+      document.getElementById("guidanceStatus");
+
+    const copyGuidanceButton =
+      document.getElementById("copyGuidanceButton");
+
+    const copyGuidanceStatus =
+      document.getElementById("copyGuidanceStatus");
+
+    const outcomeRadios =
+      document.querySelectorAll('input[name="outcome"]');
+
+    const declineReasonArea =
+      document.getElementById("declineReasonArea");
+
+    const declineReason =
+      document.getElementById("declineReason");
+
+    const saveOutcomeButton =
+      document.getElementById("saveOutcomeButton");
+
+    const outcomeStatus =
+      document.getElementById("outcomeStatus");
+
+    const startAgainButton =
+      document.getElementById("startAgainButton");
+
+    const advisorPage =
+      document.getElementById("advisorPage");
+
+    const outcomesPage =
+      document.getElementById("outcomesPage");
+
+    const outcomesButton =
+      document.getElementById("outcomesButton");
+
+    const backToAdvisorButton =
+      document.getElementById("backToAdvisorButton");
+
+    const soldTotal =
+      document.getElementById("soldTotal");
+
+    const pendingTotal =
+      document.getElementById("pendingTotal");
+
+    const declinedTotal =
+      document.getElementById("declinedTotal");
+
+    const topDeclineReason =
+      document.getElementById("topDeclineReason");
+
+    const exportButton =
+      document.getElementById("exportButton");
+
+    const clearOutcomesButton =
+      document.getElementById("clearOutcomesButton");
+
+    const outcomesStatus =
+      document.getElementById("outcomesStatus");
+
+    let currentExplanation = "";
+    let currentGuidance = "";
+
+    function setGenerating(isGenerating) {
+      generateButton.disabled = isGenerating;
+      technicianNotes.disabled = isGenerating;
+
+      loadingSpinner.classList.toggle(
+        "is-visible",
+        isGenerating
+      );
+
+      generateButtonText.textContent = isGenerating
+        ? "Preparing your explanation..."
+        : "Generate Customer Explanation";
+    }
+
+    function showStatus(element, message, type = "") {
+      element.textContent = message;
+      element.className = "status-message";
+
+      if (type) {
+        element.classList.add(type);
+      }
+    }
+
+    function clearStatus(element) {
+      element.textContent = "";
+      element.className = "status-message";
+    }
+
+    async function getJson(response) {
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(
+          data.error || "The service is temporarily unavailable."
+        );
+      }
+
+      return data;
+    }
+
+    generateButton.addEventListener("click", async () => {
+      const notes = technicianNotes.value.trim();
+
+      clearStatus(generateStatus);
+      copyExplanationStatus.textContent = "";
+
+      if (!notes) {
+        showStatus(
+          generateStatus,
+          "Please enter the technician recommendation.",
+          "error"
+        );
+
+        technicianNotes.focus();
+        return;
+      }
+
+      setGenerating(true);
+
+      try {
+        const response = await fetch(
+          `${API_BASE}/api/generate`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ notes })
+          }
+        );
+
+        const data = await getJson(response);
+
+        currentExplanation = data.result;
+        customerExplanation.textContent = currentExplanation;
+
+        resultsArea.classList.remove("is-hidden");
+
+        guidanceResultArea.classList.add("is-hidden");
+        advisorGuidance.textContent = "";
+        selectedQuestion.textContent = "";
+        currentGuidance = "";
+
+        clearStatus(guidanceStatus);
+        clearStatus(outcomeStatus);
+
+        resultsArea.scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
+      } catch (error) {
+        showStatus(
+          generateStatus,
+          error.message ||
+            "The explanation could not be generated.",
+          "error"
+        );
+      } finally {
+        setGenerating(false);
+      }
+    });
+
+    copyExplanationButton.addEventListener(
+      "click",
+      async () => {
+        if (!currentExplanation) {
+          return;
+        }
+
+        try {
+          await navigator.clipboard.writeText(
+            currentExplanation
+          );
+
+          copyExplanationStatus.textContent = "Copied";
+        } catch {
+          copyExplanationStatus.textContent =
+            "Please select and copy the text manually.";
+        }
+      }
+    );
+
+    questionButtons.forEach((button) => {
+      button.addEventListener("click", async () => {
+        const notes = technicianNotes.value.trim();
+        const question = button.dataset.question;
+
+        clearStatus(guidanceStatus);
+        copyGuidanceStatus.textContent = "";
+
+        questionButtons.forEach((item) => {
+          item.classList.remove("is-active");
+          item.disabled = true;
+        });
+
+        button.classList.add("is-active");
+        selectedQuestion.textContent = question;
+        advisorGuidance.textContent =
+          "Preparing advisor guidance...";
+
+        guidanceResultArea.classList.remove("is-hidden");
+
+        try {
+          const response = await fetch(
+            `${API_BASE}/api/guidance`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                notes,
+                question
+              })
+            }
+          );
+
+          const data = await getJson(response);
+
+          currentGuidance = data.result;
+          advisorGuidance.textContent = currentGuidance;
+        } catch (error) {
+          currentGuidance = "";
+          advisorGuidance.textContent = "";
+
+          showStatus(
+            guidanceStatus,
+            error.message ||
+              "Advisor guidance could not be generated.",
+            "error"
+          );
+        } finally {
+          questionButtons.forEach((item) => {
+            item.disabled = false;
+          });
+        }
+      });
+    });
+
+    copyGuidanceButton.addEventListener(
+      "click",
+      async () => {
+        if (!currentGuidance) {
+          return;
+        }
+
+        try {
+          await navigator.clipboard.writeText(currentGuidance);
+          copyGuidanceStatus.textContent = "Copied";
+        } catch {
+          copyGuidanceStatus.textContent =
+            "Please select and copy the text manually.";
+        }
+      }
+    );
+
+    outcomeRadios.forEach((radio) => {
+      radio.addEventListener("change", () => {
+        const isDeclined = radio.value === "declined";
+
+        declineReasonArea.classList.toggle(
+          "is-hidden",
+          !isDeclined
+        );
+
+        if (!isDeclined) {
+          declineReason.value = "";
+        }
+
+        clearStatus(outcomeStatus);
+      });
+    });
+
+    function getStoredOutcomes() {
+      try {
+        return JSON.parse(
+          localStorage.getItem("wipproOutcomes") || "[]"
+        );
+      } catch {
+        return [];
+      }
+    }
+
+    function saveStoredOutcomes(outcomes) {
+      localStorage.setItem(
+        "wipproOutcomes",
+        JSON.stringify(outcomes)
+      );
+    }
+
+    saveOutcomeButton.addEventListener("click", () => {
+      const selectedOutcome = document.querySelector(
+        'input[name="outcome"]:checked'
+      );
+
+      clearStatus(outcomeStatus);
+
+      if (!selectedOutcome) {
+        showStatus(
+          outcomeStatus,
+          "Please select an outcome.",
+          "error"
+        );
+
+        return;
+      }
+
+      if (
+        selectedOutcome.value === "declined" &&
+        !declineReason.value
+      ) {
+        showStatus(
+          outcomeStatus,
+          "Please select the reason the work was declined.",
+          "error"
+        );
+
+        declineReason.focus();
+        return;
+      }
+
+      const outcomes = getStoredOutcomes();
+
+      outcomes.push({
+        date: new Date().toISOString(),
+        outcome: selectedOutcome.value,
+        declineReason:
+          selectedOutcome.value === "declined"
+            ? declineReason.value
+            : ""
+      });
+
+      saveStoredOutcomes(outcomes);
+
+      showStatus(
+        outcomeStatus,
+        "Outcome saved.",
+        "success"
+      );
+
+      updateOutcomesPage();
+    });
+
+    function resetAdvisorPage() {
+      technicianNotes.value = "";
+      currentExplanation = "";
+      currentGuidance = "";
+
+      customerExplanation.textContent = "";
+      advisorGuidance.textContent = "";
+      selectedQuestion.textContent = "";
+
+      resultsArea.classList.add("is-hidden");
+      guidanceResultArea.classList.add("is-hidden");
+      declineReasonArea.classList.add("is-hidden");
+
+      outcomeRadios.forEach((radio) => {
+        radio.checked = false;
+      });
+
+      questionButtons.forEach((button) => {
+        button.classList.remove("is-active");
+      });
+
+      declineReason.value = "";
+
+      clearStatus(generateStatus);
+      clearStatus(guidanceStatus);
+      clearStatus(outcomeStatus);
+
+      copyExplanationStatus.textContent = "";
+      copyGuidanceStatus.textContent = "";
+
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+
+      technicianNotes.focus();
+    }
+
+    startAgainButton.addEventListener(
+      "click",
+      resetAdvisorPage
+    );
+
+    function updateOutcomesPage() {
+      const outcomes = getStoredOutcomes();
+
+      const sold = outcomes.filter(
+        (item) => item.outcome === "sold"
+      ).length;
+
+      const pending = outcomes.filter(
+        (item) => item.outcome === "pending"
+      ).length;
+
+      const declined = outcomes.filter(
+        (item) => item.outcome === "declined"
+      ).length;
+
+      soldTotal.textContent = sold;
+      pendingTotal.textContent = pending;
+      declinedTotal.textContent = declined;
+
+      const reasons = outcomes
+        .filter(
+          (item) =>
+            item.outcome === "declined" &&
+            item.declineReason
+        )
+        .reduce((counts, item) => {
+          counts[item.declineReason] =
+            (counts[item.declineReason] || 0) + 1;
+
+          return counts;
+        }, {});
+
+      const highestReason = Object.entries(reasons).sort(
+        (first, second) => second[1] - first[1]
+      )[0];
+
+      topDeclineReason.textContent = highestReason
+        ? `${highestReason[0]} (${highestReason[1]})`
+        : "No declined outcomes recorded.";
+    }
+
+    function showOutcomesPage() {
+      updateOutcomesPage();
+
+      advisorPage.classList.add("is-hidden");
+      outcomesPage.classList.remove("is-hidden");
+
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+    }
+
+    function showAdvisorPage() {
+      outcomesPage.classList.add("is-hidden");
+      advisorPage.classList.remove("is-hidden");
+
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+    }
+
+    outcomesButton.addEventListener(
+      "click",
+      showOutcomesPage
+    );
+
+    backToAdvisorButton.addEventListener(
+      "click",
+      showAdvisorPage
+    );
+
+    exportButton.addEventListener("click", () => {
+      const outcomes = getStoredOutcomes();
+
+      clearStatus(outcomesStatus);
+
+      if (!outcomes.length) {
+        showStatus(
+          outcomesStatus,
+          "There are no outcomes to export.",
+          "error"
+        );
+
+        return;
+      }
+
+      const rows = [
+        ["Date", "Outcome", "Decline reason"],
+        ...outcomes.map((item) => [
+          new Date(item.date).toLocaleString("en-GB"),
+          item.outcome,
+          item.declineReason
+        ])
+      ];
+
+      const csv = rows
+        .map((row) =>
+          row
+            .map((value) => {
+              const safeValue = String(value).replace(
+                /"/g,
+                '""'
+              );
+
+              return `"${safeValue}"`;
+            })
+            .join(",")
+        )
+        .join("\n");
+
+      const blob = new Blob([csv], {
+        type: "text/csv;charset=utf-8"
+      });
+
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+
+      link.href = url;
+      link.download = `wippro-outcomes-${
+        new Date().toISOString().split("T")[0]
+      }.csv`;
+
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      URL.revokeObjectURL(url);
+
+      showStatus(
+        outcomesStatus,
+        "CSV exported.",
+        "success"
+      );
+    });
+
+    clearOutcomesButton.addEventListener(
+      "click",
+      () => {
+        const confirmed = window.confirm(
+          "Delete every outcome saved in this browser?"
+        );
+
+        if (!confirmed) {
+          return;
+        }
+
+        localStorage.removeItem("wipproOutcomes");
+        updateOutcomesPage();
+
+        showStatus(
+          outcomesStatus,
+          "Saved outcomes cleared.",
+          "success"
+        );
+      }
+    );
+
+    updateOutcomesPage();
+  </script>
 </body>
 </html>
