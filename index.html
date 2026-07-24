@@ -46,8 +46,8 @@
         </h1>
 
         <p class="intro-copy">
-          Turn a technician recommendation into clear,
-          professional language ready to discuss with your customer.
+          Turn a technician recommendation into clear language,
+          then answer the customer’s real question quickly and confidently.
         </p>
       </div>
 
@@ -59,8 +59,8 @@
           </div>
 
           <p class="section-description">
-            Paste the technician’s recommendation exactly as it has
-            been recorded.
+            Paste the recommendation exactly as it has been recorded,
+            then select the workshop status.
           </p>
         </div>
 
@@ -160,81 +160,55 @@
           <div class="section-heading">
             <div>
               <p class="section-number">03</p>
-              <h2 id="guidanceHeading">Advisor Guidance</h2>
+              <h2 id="guidanceHeading">Customer Question</h2>
             </div>
 
             <p class="section-description">
-              Select the question closest to what your customer is
-              asking.
+              Type exactly what the customer has asked for a quick,
+              easy-to-understand technical reply.
             </p>
           </div>
 
-          <div
-            id="questionButtons"
-            class="question-grid"
-            aria-label="Common customer questions"
+          <label class="sr-only" for="customerQuestion">
+            Customer Question
+          </label>
+
+          <textarea
+            id="customerQuestion"
+            class="question-input"
+            maxlength="750"
+            placeholder="Example: Why do the discs need replacing as well?"
+          ></textarea>
+
+          <button
+            id="generateReplyButton"
+            class="primary-button compact-button question-submit"
+            type="button"
           >
-            <button
-              class="question-button"
-              type="button"
-              data-question="Can this work wait?"
-            >
-              Can it wait?
-            </button>
+            <span id="generateReplyButtonText">Generate Quick Reply</span>
+            <span
+              id="replyLoadingSpinner"
+              class="spinner"
+              aria-hidden="true"
+            ></span>
+          </button>
 
-            <button
-              class="question-button"
-              type="button"
-              data-question="Why is this work needed?"
-            >
-              Why is this needed?
-            </button>
-
-            <button
-              class="question-button"
-              type="button"
-              data-question="What could happen if the work is delayed?"
-            >
-              What if it is delayed?
-            </button>
-
-            <button
-              class="question-button"
-              type="button"
-              data-question="Why has this component failed?"
-            >
-              Why has it failed?
-            </button>
-
-            <button
-              class="question-button"
-              type="button"
-              data-question="Why was this not identified previously?"
-            >
-              Why was it not identified before?
-            </button>
-
-            <button
-              class="question-button"
-              type="button"
-              data-question="Would this have been covered by the MOT?"
-            >
-              What about the MOT?
-            </button>
-          </div>
+          <p
+            id="guidanceStatus"
+            class="status-message"
+            role="status"
+            aria-live="polite"
+          ></p>
 
           <div
             id="guidanceResultArea"
             class="guidance-result is-hidden"
           >
-            <p
-              id="selectedQuestion"
-              class="selected-question"
-            ></p>
+            <p class="reply-label">Advisor Reply</p>
 
             <div
               id="advisorGuidance"
-              class="generated-content"
+              class="generated-content quick-reply"
             ></div>
 
             <div class="panel-actions">
@@ -243,7 +217,7 @@
                 class="secondary-button"
                 type="button"
               >
-                Copy Guidance
+                Copy Reply
               </button>
 
               <span
@@ -254,13 +228,6 @@
               ></span>
             </div>
           </div>
-
-          <p
-            id="guidanceStatus"
-            class="status-message"
-            role="status"
-            aria-live="polite"
-          ></p>
         </section>
 
         <section
@@ -470,132 +437,105 @@
   </footer>
 
   <script>
-    const API_BASE =
-      "https://web-production-76fd0.up.railway.app";
+    const API_BASE = "https://web-production-76fd0.up.railway.app";
 
-    const technicianNotes =
-      document.getElementById("technicianNotes");
-
-    const generateButton =
-      document.getElementById("generateButton");
-
-    const generateButtonText =
-      document.getElementById("generateButtonText");
-
-    const loadingSpinner =
-      document.getElementById("loadingSpinner");
-
-    const generateStatus =
-      document.getElementById("generateStatus");
-
-    const resultsArea =
-      document.getElementById("resultsArea");
-
+    const technicianNotes = document.getElementById("technicianNotes");
+    const workshopStatusRadios =
+      document.querySelectorAll('input[name="workshopStatus"]');
+    const generateButton = document.getElementById("generateButton");
+    const generateButtonText = document.getElementById("generateButtonText");
+    const loadingSpinner = document.getElementById("loadingSpinner");
+    const generateStatus = document.getElementById("generateStatus");
+    const resultsArea = document.getElementById("resultsArea");
     const customerExplanation =
       document.getElementById("customerExplanation");
-
     const copyExplanationButton =
       document.getElementById("copyExplanationButton");
-
     const copyExplanationStatus =
       document.getElementById("copyExplanationStatus");
 
-    const questionButtons =
-      document.querySelectorAll(".question-button");
-
+    const customerQuestion = document.getElementById("customerQuestion");
+    const generateReplyButton =
+      document.getElementById("generateReplyButton");
+    const generateReplyButtonText =
+      document.getElementById("generateReplyButtonText");
+    const replyLoadingSpinner =
+      document.getElementById("replyLoadingSpinner");
     const guidanceResultArea =
       document.getElementById("guidanceResultArea");
-
-    const selectedQuestion =
-      document.getElementById("selectedQuestion");
-
-    const advisorGuidance =
-      document.getElementById("advisorGuidance");
-
-    const guidanceStatus =
-      document.getElementById("guidanceStatus");
-
+    const advisorGuidance = document.getElementById("advisorGuidance");
+    const guidanceStatus = document.getElementById("guidanceStatus");
     const copyGuidanceButton =
       document.getElementById("copyGuidanceButton");
-
     const copyGuidanceStatus =
       document.getElementById("copyGuidanceStatus");
 
     const outcomeRadios =
       document.querySelectorAll('input[name="outcome"]');
-
     const declineReasonArea =
       document.getElementById("declineReasonArea");
-
-    const declineReason =
-      document.getElementById("declineReason");
-
+    const declineReason = document.getElementById("declineReason");
     const saveOutcomeButton =
       document.getElementById("saveOutcomeButton");
-
-    const outcomeStatus =
-      document.getElementById("outcomeStatus");
-
+    const outcomeStatus = document.getElementById("outcomeStatus");
     const startAgainButton =
       document.getElementById("startAgainButton");
 
-    const advisorPage =
-      document.getElementById("advisorPage");
-
-    const outcomesPage =
-      document.getElementById("outcomesPage");
-
-    const outcomesButton =
-      document.getElementById("outcomesButton");
-
+    const advisorPage = document.getElementById("advisorPage");
+    const outcomesPage = document.getElementById("outcomesPage");
+    const outcomesButton = document.getElementById("outcomesButton");
     const backToAdvisorButton =
       document.getElementById("backToAdvisorButton");
-
-    const soldTotal =
-      document.getElementById("soldTotal");
-
-    const pendingTotal =
-      document.getElementById("pendingTotal");
-
-    const declinedTotal =
-      document.getElementById("declinedTotal");
-
+    const soldTotal = document.getElementById("soldTotal");
+    const pendingTotal = document.getElementById("pendingTotal");
+    const declinedTotal = document.getElementById("declinedTotal");
     const topDeclineReason =
       document.getElementById("topDeclineReason");
-
-    const exportButton =
-      document.getElementById("exportButton");
-
+    const exportButton = document.getElementById("exportButton");
     const clearOutcomesButton =
       document.getElementById("clearOutcomesButton");
-
     const outcomesStatus =
       document.getElementById("outcomesStatus");
 
     let currentExplanation = "";
     let currentGuidance = "";
 
+    function getSelectedStatus() {
+      return document.querySelector(
+        'input[name="workshopStatus"]:checked'
+      )?.value || "";
+    }
+
     function setGenerating(isGenerating) {
       generateButton.disabled = isGenerating;
       technicianNotes.disabled = isGenerating;
 
-      loadingSpinner.classList.toggle(
-        "is-visible",
-        isGenerating
-      );
+      workshopStatusRadios.forEach((radio) => {
+        radio.disabled = isGenerating;
+      });
 
+      loadingSpinner.classList.toggle("is-visible", isGenerating);
       generateButtonText.textContent = isGenerating
         ? "Preparing your explanation..."
         : "Generate Customer Explanation";
     }
 
+    function setReplyGenerating(isGenerating) {
+      generateReplyButton.disabled = isGenerating;
+      customerQuestion.disabled = isGenerating;
+      replyLoadingSpinner.classList.toggle(
+        "is-visible",
+        isGenerating
+      );
+      generateReplyButtonText.textContent = isGenerating
+        ? "Preparing your reply..."
+        : "Generate Quick Reply";
+    }
+
     function showStatus(element, message, type = "") {
       element.textContent = message;
       element.className = "status-message";
-
-      if (type) {
-        element.classList.add(type);
-      }
+      if (type) element.classList.add(type);
     }
 
     function clearStatus(element) {
@@ -605,18 +545,17 @@
 
     async function getJson(response) {
       const data = await response.json().catch(() => ({}));
-
       if (!response.ok) {
         throw new Error(
           data.error || "The service is temporarily unavailable."
         );
       }
-
       return data;
     }
 
     generateButton.addEventListener("click", async () => {
       const notes = technicianNotes.value.trim();
+      const status = getSelectedStatus();
 
       clearStatus(generateStatus);
       copyExplanationStatus.textContent = "";
@@ -627,35 +566,36 @@
           "Please enter the technician recommendation.",
           "error"
         );
-
         technicianNotes.focus();
+        return;
+      }
+
+      if (!status) {
+        showStatus(
+          generateStatus,
+          "Please select Red, Amber or Characteristic.",
+          "error"
+        );
         return;
       }
 
       setGenerating(true);
 
       try {
-        const response = await fetch(
-          `${API_BASE}/api/generate`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ notes })
-          }
-        );
+        const response = await fetch(`${API_BASE}/api/generate`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ notes, status })
+        });
 
         const data = await getJson(response);
-
         currentExplanation = data.result;
         customerExplanation.textContent = currentExplanation;
 
         resultsArea.classList.remove("is-hidden");
-
         guidanceResultArea.classList.add("is-hidden");
         advisorGuidance.textContent = "";
-        selectedQuestion.textContent = "";
+        customerQuestion.value = "";
         currentGuidance = "";
 
         clearStatus(guidanceStatus);
@@ -668,8 +608,7 @@
       } catch (error) {
         showStatus(
           generateStatus,
-          error.message ||
-            "The explanation could not be generated.",
+          error.message || "The explanation could not be generated.",
           "error"
         );
       } finally {
@@ -677,113 +616,105 @@
       }
     });
 
-    copyExplanationButton.addEventListener(
-      "click",
-      async () => {
-        if (!currentExplanation) {
-          return;
-        }
+    copyExplanationButton.addEventListener("click", async () => {
+      if (!currentExplanation) return;
 
-        try {
-          await navigator.clipboard.writeText(
-            currentExplanation
-          );
-
-          copyExplanationStatus.textContent = "Copied";
-        } catch {
-          copyExplanationStatus.textContent =
-            "Please select and copy the text manually.";
-        }
+      try {
+        await navigator.clipboard.writeText(currentExplanation);
+        copyExplanationStatus.textContent = "Copied";
+      } catch {
+        copyExplanationStatus.textContent =
+          "Please select and copy the text manually.";
       }
-    );
-
-    questionButtons.forEach((button) => {
-      button.addEventListener("click", async () => {
-        const notes = technicianNotes.value.trim();
-        const question = button.dataset.question;
-
-        clearStatus(guidanceStatus);
-        copyGuidanceStatus.textContent = "";
-
-        questionButtons.forEach((item) => {
-          item.classList.remove("is-active");
-          item.disabled = true;
-        });
-
-        button.classList.add("is-active");
-        selectedQuestion.textContent = question;
-        advisorGuidance.textContent =
-          "Preparing advisor guidance...";
-
-        guidanceResultArea.classList.remove("is-hidden");
-
-        try {
-          const response = await fetch(
-            `${API_BASE}/api/guidance`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json"
-              },
-              body: JSON.stringify({
-                notes,
-                question
-              })
-            }
-          );
-
-          const data = await getJson(response);
-
-          currentGuidance = data.result;
-          advisorGuidance.textContent = currentGuidance;
-        } catch (error) {
-          currentGuidance = "";
-          advisorGuidance.textContent = "";
-
-          showStatus(
-            guidanceStatus,
-            error.message ||
-              "Advisor guidance could not be generated.",
-            "error"
-          );
-        } finally {
-          questionButtons.forEach((item) => {
-            item.disabled = false;
-          });
-        }
-      });
     });
 
-    copyGuidanceButton.addEventListener(
-      "click",
-      async () => {
-        if (!currentGuidance) {
-          return;
-        }
+    generateReplyButton.addEventListener("click", async () => {
+      const notes = technicianNotes.value.trim();
+      const status = getSelectedStatus();
+      const question = customerQuestion.value.trim();
 
-        try {
-          await navigator.clipboard.writeText(currentGuidance);
-          copyGuidanceStatus.textContent = "Copied";
-        } catch {
-          copyGuidanceStatus.textContent =
-            "Please select and copy the text manually.";
-        }
+      clearStatus(guidanceStatus);
+      copyGuidanceStatus.textContent = "";
+
+      if (!question) {
+        showStatus(
+          guidanceStatus,
+          "Please enter the customer’s question.",
+          "error"
+        );
+        customerQuestion.focus();
+        return;
       }
-    );
+
+      if (!notes || !status || !currentExplanation) {
+        showStatus(
+          guidanceStatus,
+          "Generate the customer explanation first.",
+          "error"
+        );
+        return;
+      }
+
+      setReplyGenerating(true);
+
+      try {
+        const response = await fetch(`${API_BASE}/api/guidance`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            notes,
+            status,
+            explanation: currentExplanation,
+            question
+          })
+        });
+
+        const data = await getJson(response);
+        currentGuidance = data.result;
+        advisorGuidance.textContent = currentGuidance;
+        guidanceResultArea.classList.remove("is-hidden");
+      } catch (error) {
+        currentGuidance = "";
+        advisorGuidance.textContent = "";
+        guidanceResultArea.classList.add("is-hidden");
+
+        showStatus(
+          guidanceStatus,
+          error.message || "The quick reply could not be generated.",
+          "error"
+        );
+      } finally {
+        setReplyGenerating(false);
+      }
+    });
+
+    customerQuestion.addEventListener("keydown", (event) => {
+      if (
+        event.key === "Enter" &&
+        (event.ctrlKey || event.metaKey)
+      ) {
+        event.preventDefault();
+        generateReplyButton.click();
+      }
+    });
+
+    copyGuidanceButton.addEventListener("click", async () => {
+      if (!currentGuidance) return;
+
+      try {
+        await navigator.clipboard.writeText(currentGuidance);
+        copyGuidanceStatus.textContent = "Copied";
+      } catch {
+        copyGuidanceStatus.textContent =
+          "Please select and copy the text manually.";
+      }
+    });
 
     outcomeRadios.forEach((radio) => {
       radio.addEventListener("change", () => {
         const isDeclined = radio.value === "declined";
-
-        declineReasonArea.classList.toggle(
-          "is-hidden",
-          !isDeclined
-        );
-
-        if (!isDeclined) {
-          declineReason.value = "";
-        }
-
+        declineReasonArea.classList.toggle("is-hidden", !isDeclined);
+        if (!isDeclined) declineReason.value = "";
         clearStatus(outcomeStatus);
       });
     });
@@ -818,7 +749,6 @@
           "Please select an outcome.",
           "error"
         );
-
         return;
       }
 
@@ -831,7 +761,6 @@
           "Please select the reason the work was declined.",
           "error"
         );
-
         declineReason.focus();
         return;
       }
@@ -848,35 +777,28 @@
       });
 
       saveStoredOutcomes(outcomes);
-
-      showStatus(
-        outcomeStatus,
-        "Outcome saved.",
-        "success"
-      );
-
+      showStatus(outcomeStatus, "Outcome saved.", "success");
       updateOutcomesPage();
     });
 
     function resetAdvisorPage() {
       technicianNotes.value = "";
+      customerQuestion.value = "";
       currentExplanation = "";
       currentGuidance = "";
-
       customerExplanation.textContent = "";
       advisorGuidance.textContent = "";
-      selectedQuestion.textContent = "";
 
       resultsArea.classList.add("is-hidden");
       guidanceResultArea.classList.add("is-hidden");
       declineReasonArea.classList.add("is-hidden");
 
-      outcomeRadios.forEach((radio) => {
+      workshopStatusRadios.forEach((radio) => {
         radio.checked = false;
       });
 
-      questionButtons.forEach((button) => {
-        button.classList.remove("is-active");
+      outcomeRadios.forEach((radio) => {
+        radio.checked = false;
       });
 
       declineReason.value = "";
@@ -884,22 +806,14 @@
       clearStatus(generateStatus);
       clearStatus(guidanceStatus);
       clearStatus(outcomeStatus);
-
       copyExplanationStatus.textContent = "";
       copyGuidanceStatus.textContent = "";
 
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-      });
-
+      window.scrollTo({ top: 0, behavior: "smooth" });
       technicianNotes.focus();
     }
 
-    startAgainButton.addEventListener(
-      "click",
-      resetAdvisorPage
-    );
+    startAgainButton.addEventListener("click", resetAdvisorPage);
 
     function updateOutcomesPage() {
       const outcomes = getStoredOutcomes();
@@ -907,11 +821,9 @@
       const sold = outcomes.filter(
         (item) => item.outcome === "sold"
       ).length;
-
       const pending = outcomes.filter(
         (item) => item.outcome === "pending"
       ).length;
-
       const declined = outcomes.filter(
         (item) => item.outcome === "declined"
       ).length;
@@ -929,7 +841,6 @@
         .reduce((counts, item) => {
           counts[item.declineReason] =
             (counts[item.declineReason] || 0) + 1;
-
           return counts;
         }, {});
 
@@ -944,39 +855,22 @@
 
     function showOutcomesPage() {
       updateOutcomesPage();
-
       advisorPage.classList.add("is-hidden");
       outcomesPage.classList.remove("is-hidden");
-
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-      });
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
     function showAdvisorPage() {
       outcomesPage.classList.add("is-hidden");
       advisorPage.classList.remove("is-hidden");
-
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-      });
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
-    outcomesButton.addEventListener(
-      "click",
-      showOutcomesPage
-    );
-
-    backToAdvisorButton.addEventListener(
-      "click",
-      showAdvisorPage
-    );
+    outcomesButton.addEventListener("click", showOutcomesPage);
+    backToAdvisorButton.addEventListener("click", showAdvisorPage);
 
     exportButton.addEventListener("click", () => {
       const outcomes = getStoredOutcomes();
-
       clearStatus(outcomesStatus);
 
       if (!outcomes.length) {
@@ -985,7 +879,6 @@
           "There are no outcomes to export.",
           "error"
         );
-
         return;
       }
 
@@ -1002,11 +895,7 @@
         .map((row) =>
           row
             .map((value) => {
-              const safeValue = String(value).replace(
-                /"/g,
-                '""'
-              );
-
+              const safeValue = String(value).replace(/"/g, '""');
               return `"${safeValue}"`;
             })
             .join(",")
@@ -1016,7 +905,6 @@
       const blob = new Blob([csv], {
         type: "text/csv;charset=utf-8"
       });
-
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
 
@@ -1028,37 +916,26 @@
       document.body.appendChild(link);
       link.click();
       link.remove();
-
       URL.revokeObjectURL(url);
 
+      showStatus(outcomesStatus, "CSV exported.", "success");
+    });
+
+    clearOutcomesButton.addEventListener("click", () => {
+      const confirmed = window.confirm(
+        "Delete every outcome saved in this browser?"
+      );
+
+      if (!confirmed) return;
+
+      localStorage.removeItem("wipproOutcomes");
+      updateOutcomesPage();
       showStatus(
         outcomesStatus,
-        "CSV exported.",
+        "Saved outcomes cleared.",
         "success"
       );
     });
-
-    clearOutcomesButton.addEventListener(
-      "click",
-      () => {
-        const confirmed = window.confirm(
-          "Delete every outcome saved in this browser?"
-        );
-
-        if (!confirmed) {
-          return;
-        }
-
-        localStorage.removeItem("wipproOutcomes");
-        updateOutcomesPage();
-
-        showStatus(
-          outcomesStatus,
-          "Saved outcomes cleared.",
-          "success"
-        );
-      }
-    );
 
     updateOutcomesPage();
   </script>
