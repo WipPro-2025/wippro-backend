@@ -74,6 +74,34 @@
           placeholder="Example: Front brake pads measure approximately 2 mm and require replacement."
         ></textarea>
 
+        <fieldset class="status-options">
+          <legend>Workshop Status</legend>
+
+          <label class="status-option status-red">
+            <input type="radio" name="workshopStatus" value="RED" />
+            <span>
+              <strong>Red</strong>
+              <small>Work recommended during this visit.</small>
+            </span>
+          </label>
+
+          <label class="status-option status-amber">
+            <input type="radio" name="workshopStatus" value="AMBER" />
+            <span>
+              <strong>Amber</strong>
+              <small>Does not need completing today; monitor and advise.</small>
+            </span>
+          </label>
+
+          <label class="status-option status-characteristic">
+            <input type="radio" name="workshopStatus" value="CHARACTERISTIC" />
+            <span>
+              <strong>Characteristic</strong>
+              <small>Normal vehicle behaviour; no repair required.</small>
+            </span>
+          </label>
+        </fieldset>
+
         <div class="privacy-note">
           <span class="privacy-icon" aria-hidden="true">i</span>
 
