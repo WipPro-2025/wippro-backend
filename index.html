@@ -6,24 +6,26 @@
     name="viewport"
     content="width=device-width, initial-scale=1.0"
   />
-
   <meta
     name="description"
-    content="WIPpro helps automotive service advisors explain technician recommendations clearly and professionally."
+    content="WIPpro helps automotive service advisors explain technician findings clearly and identify missing workshop information."
   />
-
   <title>WIPpro | Clear Aftersales Communication</title>
-
   <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
   <header class="site-header">
     <div class="header-inner">
-      <a class="brand" href="#" aria-label="WIPpro home">
+      <button
+        id="homeButton"
+        class="brand"
+        type="button"
+        aria-label="Return to WIPpro"
+      >
         <span class="brand-name">WIPpro</span>
         <span class="brand-mark" aria-hidden="true"></span>
-      </a>
+      </button>
 
       <button
         id="outcomesButton"
@@ -38,7 +40,9 @@
   <main class="page-shell">
     <section id="advisorPage" class="page-section">
       <div class="intro">
-        <p class="eyebrow">Automotive aftersales communication</p>
+        <p class="eyebrow">
+          Automotive aftersales communication
+        </p>
 
         <h1>
           Helping advisors explain work clearly,
@@ -46,65 +50,37 @@
         </h1>
 
         <p class="intro-copy">
-          Turn a technician recommendation into clear language,
-          then answer the customer’s real question quickly and confidently.
+          Turn technician notes into clear customer language,
+          and spot when the workshop write-up needs more detail.
         </p>
       </div>
 
-      <section class="input-panel" aria-labelledby="reportHeading">
-        <div class="section-heading">
-          <div>
-            <p class="section-number">01</p>
-            <h2 id="reportHeading">Technician Recommendation</h2>
-          </div>
-
+      <section
+        class="panel input-panel"
+        aria-labelledby="reportHeading"
+      >
+        <div class="section-heading centred-heading">
+          <p class="section-number">01</p>
+          <h2 id="reportHeading">Technician Write-up</h2>
           <p class="section-description">
-            Paste the recommendation exactly as it has been recorded,
-            then select the workshop status.
+            Paste the finding exactly as it has been recorded.
+            WIPpro will explain what is known and flag anything
+            that needs clarifying.
           </p>
         </div>
 
         <label class="sr-only" for="technicianNotes">
-          Technician Recommendation
+          Technician write-up
         </label>
 
         <textarea
           id="technicianNotes"
           maxlength="4000"
-          placeholder="Example: Front brake pads measure approximately 2 mm and require replacement."
+          placeholder="Example: NSF lower arm rear bush split. Replacement recommended."
         ></textarea>
-
-        <fieldset class="status-options">
-          <legend>Workshop Status</legend>
-
-          <label class="status-option status-red">
-            <input type="radio" name="workshopStatus" value="RED" />
-            <span>
-              <strong>Red</strong>
-              <small>Work recommended during this visit.</small>
-            </span>
-          </label>
-
-          <label class="status-option status-amber">
-            <input type="radio" name="workshopStatus" value="AMBER" />
-            <span>
-              <strong>Amber</strong>
-              <small>Does not need completing today; monitor and advise.</small>
-            </span>
-          </label>
-
-          <label class="status-option status-characteristic">
-            <input type="radio" name="workshopStatus" value="CHARACTERISTIC" />
-            <span>
-              <strong>Characteristic</strong>
-              <small>Normal vehicle behaviour; no repair required.</small>
-            </span>
-          </label>
-        </fieldset>
 
         <div class="privacy-note">
           <span class="privacy-icon" aria-hidden="true">i</span>
-
           <p>
             Do not include customer names, registration numbers,
             VINs, telephone numbers or email addresses.
@@ -117,9 +93,8 @@
           type="button"
         >
           <span id="generateButtonText">
-            Generate Customer Explanation
+            Create Clear Explanation
           </span>
-
           <span
             id="loadingSpinner"
             class="spinner"
@@ -141,20 +116,59 @@
         aria-live="polite"
       >
         <section
-          class="content-panel result-panel"
+          id="writeUpReviewPanel"
+          class="panel review-panel"
+          aria-labelledby="writeUpReviewHeading"
+        >
+          <div class="review-heading">
+            <div>
+              <p class="section-number">02</p>
+              <h2 id="writeUpReviewHeading">
+                Write-up Check
+              </h2>
+            </div>
+
+            <span
+              id="reviewBadge"
+              class="review-badge"
+            ></span>
+          </div>
+
+          <p
+            id="reviewSummary"
+            class="review-summary"
+          ></p>
+
+          <div
+            id="missingInformationArea"
+            class="missing-information is-hidden"
+          >
+            <p class="missing-title">
+              Useful details to confirm
+            </p>
+            <ul id="missingInformationList"></ul>
+          </div>
+
+          <p class="internal-note">
+            This section is for the advisor and is not customer wording.
+          </p>
+        </section>
+
+        <section
+          class="panel result-panel"
           aria-labelledby="explanationHeading"
         >
           <div class="section-heading">
             <div>
-              <p class="section-number">02</p>
+              <p class="section-number">03</p>
               <h2 id="explanationHeading">
                 Customer Explanation
               </h2>
             </div>
 
             <p class="section-description">
-              Clear, professional language ready to share with your
-              customer.
+              A neutral explanation of what the workshop has
+              recorded, including what is not yet confirmed.
             </p>
           </div>
 
@@ -182,38 +196,43 @@
         </section>
 
         <section
-          class="content-panel"
+          class="panel"
           aria-labelledby="guidanceHeading"
         >
           <div class="section-heading">
             <div>
-              <p class="section-number">03</p>
-              <h2 id="guidanceHeading">Customer Question</h2>
+              <p class="section-number">04</p>
+              <h2 id="guidanceHeading">
+                Customer Question
+              </h2>
             </div>
 
             <p class="section-description">
-              Type exactly what the customer has asked for a quick,
-              easy-to-understand technical reply.
+              Type exactly what the customer has asked.
+              WIPpro will answer the question directly without
+              repeating a sales recommendation.
             </p>
           </div>
 
           <label class="sr-only" for="customerQuestion">
-            Customer Question
+            Customer question
           </label>
 
           <textarea
             id="customerQuestion"
             class="question-input"
             maxlength="750"
-            placeholder="Example: Why do the discs need replacing as well?"
+            placeholder="Example: How long will it take?"
           ></textarea>
 
           <button
             id="generateReplyButton"
-            class="primary-button compact-button question-submit"
+            class="primary-button compact-button centred-button"
             type="button"
           >
-            <span id="generateReplyButtonText">Generate Quick Reply</span>
+            <span id="generateReplyButtonText">
+              Generate Quick Reply
+            </span>
             <span
               id="replyLoadingSpinner"
               class="spinner"
@@ -232,7 +251,15 @@
             id="guidanceResultArea"
             class="guidance-result is-hidden"
           >
-            <p class="reply-label">Advisor Reply</p>
+            <div class="reply-header">
+              <p class="reply-label">Advisor Reply</p>
+              <span
+                id="motCheckedBadge"
+                class="mot-checked is-hidden"
+              >
+                Current GOV.UK MOT guidance checked
+              </span>
+            </div>
 
             <div
               id="advisorGuidance"
@@ -259,34 +286,37 @@
         </section>
 
         <section
-          class="content-panel"
+          class="panel"
           aria-labelledby="outcomeHeading"
         >
           <div class="section-heading">
             <div>
-              <p class="section-number">04</p>
+              <p class="section-number">05</p>
               <h2 id="outcomeHeading">Record Outcome</h2>
             </div>
 
             <p class="section-description">
-              Record the result once the recommendation has been
-              discussed.
+              Record the result after the finding has been
+              discussed with the customer.
             </p>
           </div>
 
           <fieldset class="outcome-options">
-            <legend class="sr-only">Select an outcome</legend>
+            <legend class="sr-only">
+              Select an outcome
+            </legend>
 
             <label class="outcome-option">
               <input
                 type="radio"
                 name="outcome"
-                value="sold"
+                value="authorised"
               />
-
               <span>
-                <strong>Work Sold</strong>
-                <small>The customer has authorised the work.</small>
+                <strong>Authorised</strong>
+                <small>
+                  The customer has authorised the work.
+                </small>
               </span>
             </label>
 
@@ -296,10 +326,11 @@
                 name="outcome"
                 value="pending"
               />
-
               <span>
                 <strong>Awaiting Decision</strong>
-                <small>The customer has not yet decided.</small>
+                <small>
+                  The customer has not yet decided.
+                </small>
               </span>
             </label>
 
@@ -309,10 +340,11 @@
                 name="outcome"
                 value="declined"
               />
-
               <span>
-                <strong>Work Declined</strong>
-                <small>The customer has chosen not to proceed.</small>
+                <strong>Declined</strong>
+                <small>
+                  The customer has chosen not to proceed.
+                </small>
               </span>
             </label>
           </fieldset>
@@ -327,7 +359,7 @@
 
             <select id="declineReason">
               <option value="">Select a reason</option>
-              <option value="Too expensive">Too expensive</option>
+              <option value="Cost">Cost</option>
               <option value="Wants more time">
                 Wants more time
               </option>
@@ -343,7 +375,7 @@
 
           <button
             id="saveOutcomeButton"
-            class="primary-button compact-button"
+            class="primary-button compact-button centred-button"
             type="button"
           >
             Save Outcome
@@ -359,7 +391,7 @@
 
         <button
           id="startAgainButton"
-          class="text-button"
+          class="text-button start-again"
           type="button"
         >
           Start a new explanation
@@ -376,7 +408,6 @@
         <div>
           <p class="eyebrow">Local reporting</p>
           <h1 id="outcomesPageHeading">Outcomes</h1>
-
           <p class="intro-copy">
             A simple view of the outcomes saved on this device.
           </p>
@@ -393,8 +424,8 @@
 
       <div class="metrics-grid">
         <article class="metric-card">
-          <p>Work Sold</p>
-          <strong id="soldTotal">0</strong>
+          <p>Authorised</p>
+          <strong id="authorisedTotal">0</strong>
         </article>
 
         <article class="metric-card">
@@ -403,12 +434,12 @@
         </article>
 
         <article class="metric-card">
-          <p>Work Declined</p>
+          <p>Declined</p>
           <strong id="declinedTotal">0</strong>
         </article>
       </div>
 
-      <section class="content-panel outcomes-detail">
+      <section class="panel outcomes-detail">
         <div class="section-heading">
           <div>
             <p class="section-number">Decline insight</p>
@@ -450,8 +481,8 @@
       </section>
 
       <p class="local-data-note">
-        Version 1 outcomes are stored only in this browser. They are
-        not yet shared between different devices or advisors.
+        Outcomes are stored only in this browser and are not
+        shared between different devices or advisors.
       </p>
     </section>
   </main>
@@ -460,21 +491,39 @@
     <p>
       WIPpro
       <span aria-hidden="true">·</span>
-      Explain with confidence. Recommend with integrity.
+      Helping advisors explain work clearly, every time.
     </p>
   </footer>
 
   <script>
-    const API_BASE = "https://web-production-76fd0.up.railway.app";
+    "use strict";
 
-    const technicianNotes = document.getElementById("technicianNotes");
-    const workshopStatusRadios =
-      document.querySelectorAll('input[name="workshopStatus"]');
-    const generateButton = document.getElementById("generateButton");
-    const generateButtonText = document.getElementById("generateButtonText");
-    const loadingSpinner = document.getElementById("loadingSpinner");
-    const generateStatus = document.getElementById("generateStatus");
-    const resultsArea = document.getElementById("resultsArea");
+    const API_BASE =
+      "https://web-production-76fd0.up.railway.app";
+    const STORAGE_KEY = "wipproOutcomes";
+
+    const technicianNotes =
+      document.getElementById("technicianNotes");
+    const generateButton =
+      document.getElementById("generateButton");
+    const generateButtonText =
+      document.getElementById("generateButtonText");
+    const loadingSpinner =
+      document.getElementById("loadingSpinner");
+    const generateStatus =
+      document.getElementById("generateStatus");
+
+    const resultsArea =
+      document.getElementById("resultsArea");
+    const reviewBadge =
+      document.getElementById("reviewBadge");
+    const reviewSummary =
+      document.getElementById("reviewSummary");
+    const missingInformationArea =
+      document.getElementById("missingInformationArea");
+    const missingInformationList =
+      document.getElementById("missingInformationList");
+
     const customerExplanation =
       document.getElementById("customerExplanation");
     const copyExplanationButton =
@@ -482,70 +531,96 @@
     const copyExplanationStatus =
       document.getElementById("copyExplanationStatus");
 
-    const customerQuestion = document.getElementById("customerQuestion");
+    const customerQuestion =
+      document.getElementById("customerQuestion");
     const generateReplyButton =
       document.getElementById("generateReplyButton");
     const generateReplyButtonText =
       document.getElementById("generateReplyButtonText");
     const replyLoadingSpinner =
       document.getElementById("replyLoadingSpinner");
+    const guidanceStatus =
+      document.getElementById("guidanceStatus");
     const guidanceResultArea =
       document.getElementById("guidanceResultArea");
-    const advisorGuidance = document.getElementById("advisorGuidance");
-    const guidanceStatus = document.getElementById("guidanceStatus");
+    const advisorGuidance =
+      document.getElementById("advisorGuidance");
+    const motCheckedBadge =
+      document.getElementById("motCheckedBadge");
     const copyGuidanceButton =
       document.getElementById("copyGuidanceButton");
     const copyGuidanceStatus =
       document.getElementById("copyGuidanceStatus");
 
-    const outcomeRadios =
-      document.querySelectorAll('input[name="outcome"]');
     const declineReasonArea =
       document.getElementById("declineReasonArea");
-    const declineReason = document.getElementById("declineReason");
+    const declineReason =
+      document.getElementById("declineReason");
     const saveOutcomeButton =
       document.getElementById("saveOutcomeButton");
-    const outcomeStatus = document.getElementById("outcomeStatus");
+    const outcomeStatus =
+      document.getElementById("outcomeStatus");
     const startAgainButton =
       document.getElementById("startAgainButton");
 
-    const advisorPage = document.getElementById("advisorPage");
-    const outcomesPage = document.getElementById("outcomesPage");
-    const outcomesButton = document.getElementById("outcomesButton");
+    const advisorPage =
+      document.getElementById("advisorPage");
+    const outcomesPage =
+      document.getElementById("outcomesPage");
+    const homeButton =
+      document.getElementById("homeButton");
+    const outcomesButton =
+      document.getElementById("outcomesButton");
     const backToAdvisorButton =
       document.getElementById("backToAdvisorButton");
-    const soldTotal = document.getElementById("soldTotal");
-    const pendingTotal = document.getElementById("pendingTotal");
-    const declinedTotal = document.getElementById("declinedTotal");
+
+    const authorisedTotal =
+      document.getElementById("authorisedTotal");
+    const pendingTotal =
+      document.getElementById("pendingTotal");
+    const declinedTotal =
+      document.getElementById("declinedTotal");
     const topDeclineReason =
       document.getElementById("topDeclineReason");
-    const exportButton = document.getElementById("exportButton");
+    const exportButton =
+      document.getElementById("exportButton");
     const clearOutcomesButton =
       document.getElementById("clearOutcomesButton");
     const outcomesStatus =
       document.getElementById("outcomesStatus");
 
     let currentExplanation = "";
+    let currentReview = {
+      status: "",
+      summary: "",
+      missingInformation: []
+    };
     let currentGuidance = "";
 
-    function getSelectedStatus() {
-      return document.querySelector(
-        'input[name="workshopStatus"]:checked'
-      )?.value || "";
+    function showStatus(element, message, type = "") {
+      element.textContent = message;
+      element.className = "status-message";
+
+      if (type) {
+        element.classList.add(type);
+      }
+    }
+
+    function clearStatus(element) {
+      element.textContent = "";
+      element.className = "status-message";
     }
 
     function setGenerating(isGenerating) {
       generateButton.disabled = isGenerating;
       technicianNotes.disabled = isGenerating;
-
-      workshopStatusRadios.forEach((radio) => {
-        radio.disabled = isGenerating;
-      });
-
-      loadingSpinner.classList.toggle("is-visible", isGenerating);
+      loadingSpinner.classList.toggle(
+        "is-visible",
+        isGenerating
+      );
       generateButtonText.textContent = isGenerating
         ? "Preparing your explanation..."
-        : "Generate Customer Explanation";
+        : "Create Clear Explanation";
     }
 
     function setReplyGenerating(isGenerating) {
@@ -560,30 +635,69 @@
         : "Generate Quick Reply";
     }
 
-    function showStatus(element, message, type = "") {
-      element.textContent = message;
-      element.className = "status-message";
-      if (type) element.classList.add(type);
-    }
-
-    function clearStatus(element) {
-      element.textContent = "";
-      element.className = "status-message";
-    }
-
-    async function getJson(response) {
+    async function readJson(response) {
       const data = await response.json().catch(() => ({}));
+
       if (!response.ok) {
         throw new Error(
-          data.error || "The service is temporarily unavailable."
+          data.error ||
+          "The service is temporarily unavailable."
         );
       }
+
       return data;
+    }
+
+    async function copyText(text, statusElement) {
+      if (!text) return;
+
+      try {
+        await navigator.clipboard.writeText(text);
+        statusElement.textContent = "Copied";
+      } catch {
+        statusElement.textContent =
+          "Please select and copy the text manually.";
+      }
+    }
+
+    function renderReview(review) {
+      const needsClarification =
+        review.status === "clarification_needed";
+
+      reviewBadge.textContent = needsClarification
+        ? "More detail needed"
+        : "Clear enough to discuss";
+
+      reviewBadge.className = needsClarification
+        ? "review-badge needs-detail"
+        : "review-badge ready";
+
+      reviewSummary.textContent =
+        review.summary ||
+        "The write-up has been checked.";
+
+      missingInformationList.innerHTML = "";
+
+      const missing = Array.isArray(
+        review.missingInformation
+      )
+        ? review.missingInformation
+        : [];
+
+      missing.forEach((item) => {
+        const listItem = document.createElement("li");
+        listItem.textContent = item;
+        missingInformationList.appendChild(listItem);
+      });
+
+      missingInformationArea.classList.toggle(
+        "is-hidden",
+        missing.length === 0
+      );
     }
 
     generateButton.addEventListener("click", async () => {
       const notes = technicianNotes.value.trim();
-      const status = getSelectedStatus();
 
       clearStatus(generateStatus);
       copyExplanationStatus.textContent = "";
@@ -591,44 +705,65 @@
       if (!notes) {
         showStatus(
           generateStatus,
-          "Please enter the technician recommendation.",
+          "Please enter the technician write-up.",
           "error"
         );
         technicianNotes.focus();
         return;
       }
 
-      if (!status) {
-        showStatus(
-          generateStatus,
-          "Please select Red, Amber or Characteristic.",
-          "error"
-        );
-        return;
-      }
-
       setGenerating(true);
 
       try {
-        const response = await fetch(`${API_BASE}/api/generate`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ notes, status })
-        });
+        const response = await fetch(
+          `${API_BASE}/api/generate`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ notes })
+          }
+        );
 
-        const data = await getJson(response);
-        currentExplanation = data.result;
-        customerExplanation.textContent = currentExplanation;
+        const data = await readJson(response);
 
-        resultsArea.classList.remove("is-hidden");
-        guidanceResultArea.classList.add("is-hidden");
-        advisorGuidance.textContent = "";
-        customerQuestion.value = "";
+        currentExplanation =
+          String(data.result || "").trim();
+
+        currentReview = {
+          status:
+            data.review?.status ||
+            "clarification_needed",
+          summary:
+            String(data.review?.summary || "").trim(),
+          missingInformation:
+            Array.isArray(
+              data.review?.missingInformation
+            )
+              ? data.review.missingInformation
+              : []
+        };
+
+        if (!currentExplanation) {
+          throw new Error(
+            "No explanation was returned."
+          );
+        }
+
+        customerExplanation.textContent =
+          currentExplanation;
+        renderReview(currentReview);
+
         currentGuidance = "";
-
+        customerQuestion.value = "";
+        advisorGuidance.textContent = "";
+        guidanceResultArea.classList.add("is-hidden");
+        motCheckedBadge.classList.add("is-hidden");
         clearStatus(guidanceStatus);
         clearStatus(outcomeStatus);
 
+        resultsArea.classList.remove("is-hidden");
         resultsArea.scrollIntoView({
           behavior: "smooth",
           block: "start"
@@ -636,7 +771,8 @@
       } catch (error) {
         showStatus(
           generateStatus,
-          error.message || "The explanation could not be generated.",
+          error.message ||
+            "The explanation could not be generated.",
           "error"
         );
       } finally {
@@ -644,114 +780,156 @@
       }
     });
 
-    copyExplanationButton.addEventListener("click", async () => {
-      if (!currentExplanation) return;
-
-      try {
-        await navigator.clipboard.writeText(currentExplanation);
-        copyExplanationStatus.textContent = "Copied";
-      } catch {
-        copyExplanationStatus.textContent =
-          "Please select and copy the text manually.";
-      }
-    });
-
-    generateReplyButton.addEventListener("click", async () => {
-      const notes = technicianNotes.value.trim();
-      const status = getSelectedStatus();
-      const question = customerQuestion.value.trim();
-
-      clearStatus(guidanceStatus);
-      copyGuidanceStatus.textContent = "";
-
-      if (!question) {
-        showStatus(
-          guidanceStatus,
-          "Please enter the customer’s question.",
-          "error"
+    copyExplanationButton.addEventListener(
+      "click",
+      () => {
+        copyText(
+          currentExplanation,
+          copyExplanationStatus
         );
-        customerQuestion.focus();
-        return;
       }
+    );
 
-      if (!notes || !status || !currentExplanation) {
-        showStatus(
-          guidanceStatus,
-          "Generate the customer explanation first.",
-          "error"
+    generateReplyButton.addEventListener(
+      "click",
+      async () => {
+        const notes = technicianNotes.value.trim();
+        const question = customerQuestion.value.trim();
+
+        clearStatus(guidanceStatus);
+        copyGuidanceStatus.textContent = "";
+        motCheckedBadge.classList.add("is-hidden");
+
+        if (!currentExplanation || !notes) {
+          showStatus(
+            guidanceStatus,
+            "Create the customer explanation first.",
+            "error"
+          );
+          return;
+        }
+
+        if (!question) {
+          showStatus(
+            guidanceStatus,
+            "Please enter the customer’s question.",
+            "error"
+          );
+          customerQuestion.focus();
+          return;
+        }
+
+        setReplyGenerating(true);
+
+        try {
+          const response = await fetch(
+            `${API_BASE}/api/guidance`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                notes,
+                explanation: currentExplanation,
+                reviewStatus: currentReview.status,
+                reviewSummary: currentReview.summary,
+                missingInformation:
+                  currentReview.missingInformation,
+                question
+              })
+            }
+          );
+
+          const data = await readJson(response);
+
+          currentGuidance =
+            String(data.result || "").trim();
+
+          if (!currentGuidance) {
+            throw new Error(
+              "No reply was returned."
+            );
+          }
+
+          advisorGuidance.textContent =
+            currentGuidance;
+
+          motCheckedBadge.classList.toggle(
+            "is-hidden",
+            data.officialMotGuidanceChecked !== true
+          );
+
+          guidanceResultArea.classList.remove(
+            "is-hidden"
+          );
+        } catch (error) {
+          currentGuidance = "";
+          advisorGuidance.textContent = "";
+          guidanceResultArea.classList.add(
+            "is-hidden"
+          );
+
+          showStatus(
+            guidanceStatus,
+            error.message ||
+              "The quick reply could not be generated.",
+            "error"
+          );
+        } finally {
+          setReplyGenerating(false);
+        }
+      }
+    );
+
+    customerQuestion.addEventListener(
+      "keydown",
+      (event) => {
+        if (
+          event.key === "Enter" &&
+          (event.ctrlKey || event.metaKey)
+        ) {
+          event.preventDefault();
+          generateReplyButton.click();
+        }
+      }
+    );
+
+    copyGuidanceButton.addEventListener(
+      "click",
+      () => {
+        copyText(
+          currentGuidance,
+          copyGuidanceStatus
         );
-        return;
       }
+    );
 
-      setReplyGenerating(true);
+    document
+      .querySelectorAll('input[name="outcome"]')
+      .forEach((radio) => {
+        radio.addEventListener("change", () => {
+          const selectedOutcome =
+            document.querySelector(
+              'input[name="outcome"]:checked'
+            )?.value || "";
 
-      try {
-        const response = await fetch(`${API_BASE}/api/guidance`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            notes,
-            status,
-            explanation: currentExplanation,
-            question
-          })
+          declineReasonArea.classList.toggle(
+            "is-hidden",
+            selectedOutcome !== "declined"
+          );
+
+          clearStatus(outcomeStatus);
         });
-
-        const data = await getJson(response);
-        currentGuidance = data.result;
-        advisorGuidance.textContent = currentGuidance;
-        guidanceResultArea.classList.remove("is-hidden");
-      } catch (error) {
-        currentGuidance = "";
-        advisorGuidance.textContent = "";
-        guidanceResultArea.classList.add("is-hidden");
-
-        showStatus(
-          guidanceStatus,
-          error.message || "The quick reply could not be generated.",
-          "error"
-        );
-      } finally {
-        setReplyGenerating(false);
-      }
-    });
-
-    customerQuestion.addEventListener("keydown", (event) => {
-      if (
-        event.key === "Enter" &&
-        (event.ctrlKey || event.metaKey)
-      ) {
-        event.preventDefault();
-        generateReplyButton.click();
-      }
-    });
-
-    copyGuidanceButton.addEventListener("click", async () => {
-      if (!currentGuidance) return;
-
-      try {
-        await navigator.clipboard.writeText(currentGuidance);
-        copyGuidanceStatus.textContent = "Copied";
-      } catch {
-        copyGuidanceStatus.textContent =
-          "Please select and copy the text manually.";
-      }
-    });
-
-    outcomeRadios.forEach((radio) => {
-      radio.addEventListener("change", () => {
-        const isDeclined = radio.value === "declined";
-        declineReasonArea.classList.toggle("is-hidden", !isDeclined);
-        if (!isDeclined) declineReason.value = "";
-        clearStatus(outcomeStatus);
       });
-    });
 
     function getStoredOutcomes() {
       try {
-        return JSON.parse(
-          localStorage.getItem("wipproOutcomes") || "[]"
+        const stored = JSON.parse(
+          localStorage.getItem(STORAGE_KEY) || "[]"
         );
+
+        return Array.isArray(stored) ? stored : [];
       } catch {
         return [];
       }
@@ -759,77 +937,103 @@
 
     function saveStoredOutcomes(outcomes) {
       localStorage.setItem(
-        "wipproOutcomes",
+        STORAGE_KEY,
         JSON.stringify(outcomes)
       );
     }
 
-    saveOutcomeButton.addEventListener("click", () => {
-      const selectedOutcome = document.querySelector(
-        'input[name="outcome"]:checked'
-      );
+    saveOutcomeButton.addEventListener(
+      "click",
+      () => {
+        const selectedOutcome =
+          document.querySelector(
+            'input[name="outcome"]:checked'
+          )?.value || "";
 
-      clearStatus(outcomeStatus);
+        clearStatus(outcomeStatus);
 
-      if (!selectedOutcome) {
-        showStatus(
-          outcomeStatus,
-          "Please select an outcome.",
-          "error"
-        );
-        return;
+        if (!selectedOutcome) {
+          showStatus(
+            outcomeStatus,
+            "Please select an outcome.",
+            "error"
+          );
+          return;
+        }
+
+        if (
+          selectedOutcome === "declined" &&
+          !declineReason.value
+        ) {
+          showStatus(
+            outcomeStatus,
+            "Please select the reason for declining.",
+            "error"
+          );
+          declineReason.focus();
+          return;
+        }
+
+        try {
+          const outcomes = getStoredOutcomes();
+
+          outcomes.push({
+            date: new Date().toISOString(),
+            outcome: selectedOutcome,
+            declineReason:
+              selectedOutcome === "declined"
+                ? declineReason.value
+                : "",
+            writeUpStatus: currentReview.status
+          });
+
+          saveStoredOutcomes(outcomes);
+
+          showStatus(
+            outcomeStatus,
+            "Outcome saved on this device.",
+            "success"
+          );
+        } catch {
+          showStatus(
+            outcomeStatus,
+            "The outcome could not be saved.",
+            "error"
+          );
+        }
       }
-
-      if (
-        selectedOutcome.value === "declined" &&
-        !declineReason.value
-      ) {
-        showStatus(
-          outcomeStatus,
-          "Please select the reason the work was declined.",
-          "error"
-        );
-        declineReason.focus();
-        return;
-      }
-
-      const outcomes = getStoredOutcomes();
-
-      outcomes.push({
-        date: new Date().toISOString(),
-        outcome: selectedOutcome.value,
-        declineReason:
-          selectedOutcome.value === "declined"
-            ? declineReason.value
-            : ""
-      });
-
-      saveStoredOutcomes(outcomes);
-      showStatus(outcomeStatus, "Outcome saved.", "success");
-      updateOutcomesPage();
-    });
+    );
 
     function resetAdvisorPage() {
       technicianNotes.value = "";
       customerQuestion.value = "";
-      currentExplanation = "";
-      currentGuidance = "";
       customerExplanation.textContent = "";
       advisorGuidance.textContent = "";
+      reviewSummary.textContent = "";
+      missingInformationList.innerHTML = "";
 
-      resultsArea.classList.add("is-hidden");
-      guidanceResultArea.classList.add("is-hidden");
-      declineReasonArea.classList.add("is-hidden");
+      currentExplanation = "";
+      currentGuidance = "";
+      currentReview = {
+        status: "",
+        summary: "",
+        missingInformation: []
+      };
 
-      workshopStatusRadios.forEach((radio) => {
-        radio.checked = false;
-      });
-
-      outcomeRadios.forEach((radio) => {
-        radio.checked = false;
-      });
+      document
+        .querySelectorAll('input[name="outcome"]')
+        .forEach((radio) => {
+          radio.checked = false;
+        });
 
       declineReason.value = "";
+      declineReasonArea.classList.add("is-hidden");
+      missingInformationArea.classList.add(
+        "is-hidden"
+      );
+      guidanceResultArea.classList.add("is-hidden");
+      motCheckedBadge.classList.add("is-hidden");
+      resultsArea.classList.add("is-hidden");
 
       clearStatus(generateStatus);
       clearStatus(guidanceStatus);
@@ -837,26 +1041,33 @@
       copyExplanationStatus.textContent = "";
       copyGuidanceStatus.textContent = "";
 
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      showAdvisorPage();
       technicianNotes.focus();
     }
 
-    startAgainButton.addEventListener("click", resetAdvisorPage);
+    startAgainButton.addEventListener(
+      "click",
+      resetAdvisorPage
+    );
 
     function updateOutcomesPage() {
       const outcomes = getStoredOutcomes();
 
-      const sold = outcomes.filter(
-        (item) => item.outcome === "sold"
+      const authorised = outcomes.filter(
+        (item) =>
+          item.outcome === "authorised" ||
+          item.outcome === "sold"
       ).length;
+
       const pending = outcomes.filter(
         (item) => item.outcome === "pending"
       ).length;
+
       const declined = outcomes.filter(
         (item) => item.outcome === "declined"
       ).length;
 
-      soldTotal.textContent = sold;
+      authorisedTotal.textContent = authorised;
       pendingTotal.textContent = pending;
       declinedTotal.textContent = declined;
 
@@ -872,98 +1083,153 @@
           return counts;
         }, {});
 
-      const highestReason = Object.entries(reasons).sort(
-        (first, second) => second[1] - first[1]
-      )[0];
+      const highestReason =
+        Object.entries(reasons).sort(
+          (first, second) =>
+            second[1] - first[1]
+        )[0];
 
-      topDeclineReason.textContent = highestReason
-        ? `${highestReason[0]} (${highestReason[1]})`
-        : "No declined outcomes recorded.";
+      topDeclineReason.textContent =
+        highestReason
+          ? `${highestReason[0]} (${highestReason[1]})`
+          : "No declined outcomes recorded.";
     }
 
     function showOutcomesPage() {
       updateOutcomesPage();
       advisorPage.classList.add("is-hidden");
       outcomesPage.classList.remove("is-hidden");
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
     }
 
     function showAdvisorPage() {
       outcomesPage.classList.add("is-hidden");
       advisorPage.classList.remove("is-hidden");
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
     }
 
-    outcomesButton.addEventListener("click", showOutcomesPage);
-    backToAdvisorButton.addEventListener("click", showAdvisorPage);
+    outcomesButton.addEventListener(
+      "click",
+      showOutcomesPage
+    );
 
-    exportButton.addEventListener("click", () => {
-      const outcomes = getStoredOutcomes();
-      clearStatus(outcomesStatus);
+    backToAdvisorButton.addEventListener(
+      "click",
+      showAdvisorPage
+    );
 
-      if (!outcomes.length) {
+    homeButton.addEventListener(
+      "click",
+      showAdvisorPage
+    );
+
+    exportButton.addEventListener(
+      "click",
+      () => {
+        const outcomes = getStoredOutcomes();
+        clearStatus(outcomesStatus);
+
+        if (!outcomes.length) {
+          showStatus(
+            outcomesStatus,
+            "There are no outcomes to export.",
+            "error"
+          );
+          return;
+        }
+
+        const rows = [
+          [
+            "Date",
+            "Outcome",
+            "Decline reason",
+            "Write-up status"
+          ],
+          ...outcomes.map((item) => [
+            new Date(item.date).toLocaleString(
+              "en-GB"
+            ),
+            item.outcome === "sold"
+              ? "authorised"
+              : item.outcome || "",
+            item.declineReason || "",
+            item.writeUpStatus || ""
+          ])
+        ];
+
+        const csv = rows
+          .map((row) =>
+            row
+              .map((value) => {
+                const safeValue =
+                  String(value).replace(
+                    /"/g,
+                    '""'
+                  );
+                return `"${safeValue}"`;
+              })
+              .join(",")
+          )
+          .join("\n");
+
+        const blob = new Blob(
+          [csv],
+          {
+            type: "text/csv;charset=utf-8"
+          }
+        );
+
+        const url =
+          URL.createObjectURL(blob);
+        const link =
+          document.createElement("a");
+
+        link.href = url;
+        link.download =
+          `wippro-outcomes-${
+            new Date()
+              .toISOString()
+              .split("T")[0]
+          }.csv`;
+
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+
         showStatus(
           outcomesStatus,
-          "There are no outcomes to export.",
-          "error"
+          "CSV exported.",
+          "success"
         );
-        return;
       }
+    );
 
-      const rows = [
-        ["Date", "Outcome", "Decline reason"],
-        ...outcomes.map((item) => [
-          new Date(item.date).toLocaleString("en-GB"),
-          item.outcome,
-          item.declineReason
-        ])
-      ];
+    clearOutcomesButton.addEventListener(
+      "click",
+      () => {
+        const confirmed = window.confirm(
+          "Delete every outcome saved in this browser?"
+        );
 
-      const csv = rows
-        .map((row) =>
-          row
-            .map((value) => {
-              const safeValue = String(value).replace(/"/g, '""');
-              return `"${safeValue}"`;
-            })
-            .join(",")
-        )
-        .join("\n");
+        if (!confirmed) return;
 
-      const blob = new Blob([csv], {
-        type: "text/csv;charset=utf-8"
-      });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
+        localStorage.removeItem(STORAGE_KEY);
+        updateOutcomesPage();
 
-      link.href = url;
-      link.download = `wippro-outcomes-${
-        new Date().toISOString().split("T")[0]
-      }.csv`;
-
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      URL.revokeObjectURL(url);
-
-      showStatus(outcomesStatus, "CSV exported.", "success");
-    });
-
-    clearOutcomesButton.addEventListener("click", () => {
-      const confirmed = window.confirm(
-        "Delete every outcome saved in this browser?"
-      );
-
-      if (!confirmed) return;
-
-      localStorage.removeItem("wipproOutcomes");
-      updateOutcomesPage();
-      showStatus(
-        outcomesStatus,
-        "Saved outcomes cleared.",
-        "success"
-      );
-    });
+        showStatus(
+          outcomesStatus,
+          "Saved outcomes cleared.",
+          "success"
+        );
+      }
+    );
 
     updateOutcomesPage();
   </script>
